@@ -1,17 +1,61 @@
 <BusinessLoginScreen>:
     name: 'business_login_screen'
 
-    MDBottomNavigation:
-        name: "business_login_to_startup"
-            
-        MDBottomNavigationItem:
-            name: 'back_to_startup_business'
-            text: 'Back'
-            icon: 'arrow-left-bold-outline'
-            on_tab_release: app.root.current = 'startup_screen'
 
-            MDLabel:
-                text: 'Business Login'
-                halign: 'center'
+    MDFloatLayout:
+
+        MDBottomNavigation:
+            name: "business_login_to_startup"
+                
+            MDBottomNavigationItem:
+                name: 'back_to_startup_business'
+                text: 'Back'
+                icon: 'arrow-left-bold-outline'
+                on_tab_release: app.root.current = 'startup_screen'
+        
+
+        MDLabel:
+            text: "Please login to your business account below"
+            halign: "center"
+            pos_hint: {"center_y": 0.7}
+
+        MDRaisedButton:
+            text: "Login"
+            size_hint: None, None
+            halign: "center"
+            pos_hint: {"center_x": 0.4, "center_y": 0.4}
+            font_size: "18sp"
+            width: root.width*0.2
+
+        MDTextButton:
+            text: "Create a Business Account"
+            pos_hint: {"center_x": 0.7, "center_y": 0.4}
+            on_release: app.root.current = 'business_create_account_screen'
+
+        MDTextField:
+            hint_text: "Email"
+            mode: "fill"
+            icon_left: "account"
+            pos_hint: {"center_x": 0.5, "center_y": 0.6}
+            size_hint_x: 0.8
+
+        MDTextField:
+            id: 'business_login_password'
+            hint_text: "Password"
+            mode: "fill"
+            password: True
+            icon_left: "key-variant"
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            size_hint_x: 0.8
+
+
+
+
+
+    
+    
+
+
+
 
     
