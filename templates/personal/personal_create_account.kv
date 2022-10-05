@@ -1,44 +1,61 @@
 <PersonalCreateAccountScreen>:
     name: 'personal_create_account_screen'
 
-    MDFloatLayout:
+    MDBoxLayout:
+        orientation: 'vertical'
+        padding: 10
+        spacing: 20
+
+        Image:
+            source: "assets/logo.png"
+            size_hint: None, None
+            pos_hint: {"center_x": .5}
+            size: "300dp", "200dp"
+            allow_stretch: True
 
         MDBottomNavigation:
-            name: "personal_create_to_login"
+            name: "personal_create_account_to_login"
                 
             MDBottomNavigationItem:
                 name: 'back_to_login_personal'
                 text: 'Back'
                 icon: 'arrow-left-bold-outline'
                 on_tab_release: app.root.current = 'personal_login_screen'
-        
+
+    MDFloatLayout:
 
         MDLabel:
-            text: "Please create your personal account below"
+            text: "Create your Personal Account below"
+            theme_text_color: "Custom"
+            font_style: "H6"
+            text_color: 76/255, 175/255, 80/255, 1
             halign: "center"
-            pos_hint: {"center_y": 0.7}
+            pos_hint: {"center_y": 0.6}
 
         MDTextField:
             id: 'personal_create_email'
-            hint_text: "Enter your Account Email"
+            hint_text: "Account Email"
+            helper_text_mode: "persistent"
             icon_left: "email"
-            pos_hint: {"center_x": 0.5, "center_y": 0.6}
-            size_hint_x: 0.8
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            size_hint_x: 0.6
 
         MDTextField:
             id: 'personal_create_name'
             hint_text: "Enter your Name"
+            helper_text_mode: "persistent"
             icon_left: "account"
-            pos_hint: {"center_x": 0.5, "center_y": 0.52}
-            size_hint_x: 0.8
+            pos_hint: {"center_x": 0.5, "center_y": 0.4}
+            size_hint_x: 0.6
 
         MDTextField:
             id: 'business_create_password'
             hint_text: "Enter your Password"
+            helper_text_mode: "persistent"
             password: True
             icon_left: "key-variant"
-            pos_hint: {"center_x": 0.5, "center_y": 0.44}
-            size_hint_x: 0.8
+            pos_hint: {"center_x": 0.5, "center_y": 0.3}
+            size_hint_x: 0.6
 
         MDRaisedButton:
             text: "Create Account"
