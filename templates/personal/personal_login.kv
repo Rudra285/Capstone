@@ -1,7 +1,6 @@
 <PersonalLoginScreen>:
     name: 'personal_login_screen'
 
-
     MDBoxLayout:
         orientation: 'vertical'
         padding: 10
@@ -34,13 +33,14 @@
             pos_hint: {"center_y": 0.6}
 
         MDRaisedButton:
-            id: 'personal_login_button'
-            text: "Login"
+            id: personal_login_button
+            text: root.btn_text
             size_hint: None, None
             halign: "center"
             pos_hint: {"center_x": 0.5, "center_y": 0.3}
             font_size: "18sp"
             width: root.width*0.2
+            on_release: root.loginButtonClicked()
 
         MDTextButton:
             text: "Create a Personal Account"
@@ -48,16 +48,16 @@
             on_release: app.root.current = 'personal_create_account_screen'
 
         MDTextField:
-            id: 'personal_login_email'
-            hint_text: "Email"
+            id: personal_login_email
+            hint_text: root.email_prompt
             helper_text_mode: "persistent"
             icon_left: "email"
             pos_hint: {"center_x": 0.5, "center_y": 0.5}
             size_hint_x: 0.6
 
         MDTextField:
-            id: 'personal_login_password'
-            hint_text: "Password"
+            id: personal_login_password
+            hint_text: root.password_prompt
             password: True
             icon_left: "key-variant"
             pos_hint: {"center_x": 0.5, "center_y": 0.4}
