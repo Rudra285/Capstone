@@ -1,14 +1,26 @@
 #  import the python files defining the Screens
 #: import PersonalLoginScreen screens.personal_login.PersonalLoginScreen
+#: import PersonalCreateAccountScreen screens.personal_create_account.PersonalCreateAccountScreen
+#: import PersonalHomeScreen screens.personal_home.PersonalHomeScreen
 #: import BusinessLoginScreen screens.business_login.BusinessLoginScreen
+#: import BusinessCreateAccountScreen screens.business_create_account.BusinessCreateAccountScreen
+#: import BusinessHomeScreen screens.business_home.BusinessHomeScreen
 #: import StartupScreen screens.startup.StartupScreen
 
 #  include the kv files for the other Screens
-#: include templates/personal_login_screen.kv
-#: include templates/business_login_screen.kv
+#: include templates/personal_login.kv
+#: include templates/personal_create_account.kv
+#: include templates/personal_home.kv
+#: include templates/business_login.kv
+#: include templates/business_create_account.kv
+#: include templates/business_home.kv
 #: include templates/startup_screen.kv
 
 WindowManager:
+    StartupScreen:
     BusinessLoginScreen:
     PersonalLoginScreen:
-    StartupScreen:
+    BusinessCreateAccountScreen:
+    PersonalCreateAccountScreen:
+    BusinessHomeScreen:
+    PersonalHomeScreen:
