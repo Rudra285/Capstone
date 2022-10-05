@@ -1,0 +1,14 @@
+#  import the python files defining the Screens
+#: import PersonalLoginScreen screens.personal_login.PersonalLoginScreen
+#: import BusinessLoginScreen screens.business_login.BusinessLoginScreen
+#: import StartupScreen screens.startup.StartupScreen
+
+#  include the kv files for the other Screens
+#: include templates/personal_login_screen.kv
+#: include templates/business_login_screen.kv
+#: include templates/startup_screen.kv
+
+WindowManager:
+    BusinessLoginScreen:
+    PersonalLoginScreen:
+    StartupScreen:
