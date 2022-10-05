@@ -1,15 +1,48 @@
 <PersonalLoginScreen>:
     name: 'personal_login_screen'
     
-    MDBottomNavigation:
-        name: "personal_login_to_startup"
-        
-        MDBottomNavigationItem:
-            name: 'back_to_startup_personal'
-            text: 'Back'
-            icon: 'arrow-left-bold-outline'
-            on_tab_release: app.root.current = 'startup_screen'
+    MDFloatLayout:
 
-            MDLabel:
-                text: 'Personal Login'
-                halign: 'center'
+        MDBottomNavigation:
+            name: "personal_login_to_startup"
+                
+            MDBottomNavigationItem:
+                name: 'back_to_startup_personal'
+                text: 'Back'
+                icon: 'arrow-left-bold-outline'
+                on_tab_release: app.root.current = 'startup_screen'
+        
+        MDLabel:
+            text: "Please login to your personal account below"
+            halign: "center"
+            pos_hint: {"center_y": 0.7}
+
+        MDRaisedButton:
+            text: "Login"
+            size_hint: None, None
+            halign: "center"
+            pos_hint: {"center_x": 0.4, "center_y": 0.4}
+            font_size: "18sp"
+            width: root.width*0.2
+
+        MDTextButton:
+            text: "Create a Personal Account"
+            pos_hint: {"center_x": 0.7, "center_y": 0.4}
+            on_release: app.root.current = 'personal_create_account_screen'
+
+        MDTextField:
+            hint_text: "Email"
+            mode: "fill"
+            icon_left: "account"
+            pos_hint: {"center_x": 0.5, "center_y": 0.6}
+            size_hint_x: 0.8
+
+
+        MDTextField:
+            id: 'business_login_password'
+            hint_text: "Password"
+            mode: "fill"
+            password: True
+            icon_left: "key-variant"
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            size_hint_x: 0.8
