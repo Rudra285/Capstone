@@ -1,8 +1,9 @@
 <StartupScreen>:
     name: 'startup_screen'
     BoxLayout:
-        Label:
-            text: 'Startup'
         Button:
-            text: 'to personal create account screen'
-            on_release: app.root.current = 'personal_create_account_screen'
+            text: 'Personal Account'
+            on_release: app.root.current = 'personal_login_screen'
+        Button:
+            text: 'Business Account'
+            on_release: app.root.current = 'business_login_screen'

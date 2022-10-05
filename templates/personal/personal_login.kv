@@ -1,0 +1,15 @@
+<PersonalLoginScreen>:
+    name: 'personal_login_screen'
+    
+    MDBottomNavigation:
+        name: "personal_login_to_startup"
+        
+        MDBottomNavigationItem:
+            name: 'back_to_startup_personal'
+            text: 'Back'
+            icon: 'arrow-left-bold-outline'
+            on_tab_release: app.root.current = 'startup_screen'
+
+            MDLabel:
+                text: 'Personal Login'
+                halign: 'center'

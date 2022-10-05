@@ -1,0 +1,17 @@
+<BusinessLoginScreen>:
+    name: 'business_login_screen'
+
+    MDBottomNavigation:
+        name: "business_login_to_startup"
+            
+        MDBottomNavigationItem:
+            name: 'back_to_startup_business'
+            text: 'Back'
+            icon: 'arrow-left-bold-outline'
+            on_tab_release: app.root.current = 'startup_screen'
+
+            MDLabel:
+                text: 'Business Login'
+                halign: 'center'
+
+    
