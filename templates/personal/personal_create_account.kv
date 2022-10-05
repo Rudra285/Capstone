@@ -1,8 +1,50 @@
 <PersonalCreateAccountScreen>:
     name: 'personal_create_account_screen'
-    BoxLayout:
-        Label:
-            text: 'Personal Create Account Screen'
-        Button:
-            text: 'go to Personal Login Screen'
+
+    MDFloatLayout:
+
+        MDBottomNavigation:
+            name: "personal_create_to_login"
+                
+            MDBottomNavigationItem:
+                name: 'back_to_login_personal'
+                text: 'Back'
+                icon: 'arrow-left-bold-outline'
+                on_tab_release: app.root.current = 'personal_login_screen'
+        
+
+        MDLabel:
+            text: "Please create your personal account below"
+            halign: "center"
+            pos_hint: {"center_y": 0.7}
+
+        MDTextField:
+            id: 'personal_create_email'
+            hint_text: "Enter your Account Email"
+            icon_left: "email"
+            pos_hint: {"center_x": 0.5, "center_y": 0.6}
+            size_hint_x: 0.8
+
+        MDTextField:
+            id: 'personal_create_name'
+            hint_text: "Enter your Name"
+            icon_left: "account"
+            pos_hint: {"center_x": 0.5, "center_y": 0.52}
+            size_hint_x: 0.8
+
+        MDTextField:
+            id: 'business_create_password'
+            hint_text: "Enter your Password"
+            password: True
+            icon_left: "key-variant"
+            pos_hint: {"center_x": 0.5, "center_y": 0.44}
+            size_hint_x: 0.8
+
+        MDRaisedButton:
+            text: "Create Account"
+            size_hint: None, None
+            halign: "center"
+            pos_hint: {"center_x": 0.5, "center_y": 0.2}
+            font_size: "18sp"
+            width: root.width*0.2
             on_release: app.root.current = 'personal_login_screen'

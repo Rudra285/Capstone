@@ -1,8 +1,53 @@
 <BusinessCreateAccountScreen>:
     name: 'business_create_account_screen'
-    BoxLayout:
-        Label:
-            text: 'Business Create Account Screen'
-        Button:
-            text: 'go to Business Login Screen'
+
+    MDFloatLayout:
+
+        MDBottomNavigation:
+            name: "business_create_to_login"
+                
+            MDBottomNavigationItem:
+                name: 'back_to_login_business'
+                text: 'Back'
+                icon: 'arrow-left-bold-outline'
+                on_tab_release: app.root.current = 'business_login_screen'
+        
+
+        MDLabel:
+            text: "Please create your business account below"
+            halign: "center"
+            pos_hint: {"center_y": 0.7}
+
+        MDTextField:
+            id: 'business_create_email'
+            hint_text: "Account Email"
+            icon_left: "email"
+            pos_hint: {"center_x": 0.5, "center_y": 0.6}
+            size_hint_x: 0.8
+
+        MDTextField:
+            id: 'business_create_name'
+            hint_text: "Business Name"
+            icon_left: "account"
+            pos_hint: {"center_x": 0.5, "center_y": 0.52}
+            size_hint_x: 0.8
+
+        MDTextField:
+            id: 'business_create_password'
+            hint_text: "Password"
+            password: True
+            icon_left: "key-variant"
+            pos_hint: {"center_x": 0.5, "center_y": 0.44}
+            size_hint_x: 0.8
+
+        MDRaisedButton:
+            text: "Create Account"
+            size_hint: None, None
+            halign: "center"
+            pos_hint: {"center_x": 0.5, "center_y": 0.2}
+            font_size: "18sp"
+            width: root.width*0.2
             on_release: app.root.current = 'business_login_screen'
+
+
+        
