@@ -3,7 +3,7 @@
 from kivymd.app import MDApp
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager
-from  kivy.core.window import Window
+from kivy.core.window import Window
 
 
 
@@ -14,13 +14,14 @@ class WindowManager(ScreenManager):
 #App window size
 Window.size = (700, 700)
 
-class TestApp(MDApp):
+class GarageApp(MDApp):
     def build(self):
         self.title = "MY GARAGE"
         self.theme_cls.primary_palette = "Green"
         self.theme_cls.accent_palette = 'Gray'
         self.theme_cls.theme_style = "Dark"
-        return Builder.load_file('main.kv')
+        self.root = Builder.load_file('main.kv')
+        return self.root
 
 if __name__ == '__main__':
-    TestApp().run()
+    GarageApp().run()

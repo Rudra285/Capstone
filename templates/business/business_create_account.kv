@@ -34,24 +34,24 @@
             pos_hint: {"center_y": 0.6}
 
         MDTextField:
-            id: 'business_create_email'
-            hint_text: "Account Email"
+            id: business_create_email
+            hint_text: root.email_prompt
             helper_text_mode: "persistent"
             icon_left: "email"
             pos_hint: {"center_x": 0.5, "center_y": 0.5}
             size_hint_x: 0.6
 
         MDTextField:
-            id: 'business_create_name'
-            hint_text: "Business Name"
+            id: business_create_name
+            hint_text: root.business_name
             helper_text_mode: "persistent"
             icon_left: "account"
             pos_hint: {"center_x": 0.5, "center_y": 0.4}
             size_hint_x: 0.6
 
         MDTextField:
-            id: 'business_create_password'
-            hint_text: "Password"
+            id: business_create_password
+            hint_text: root.password_prompt
             helper_text_mode: "persistent"
             password: True
             icon_left: "key-variant"
@@ -59,13 +59,13 @@
             size_hint_x: 0.6
 
         MDRaisedButton:
-            text: "Create Account"
+            text: root.btn_text
             size_hint: None, None
             halign: "center"
             pos_hint: {"center_x": 0.5, "center_y": 0.2}
             font_size: "18sp"
             width: root.width*0.2
-            on_release: app.root.current = 'business_login_screen'
+            on_release: root.onClick()
 
 
         
