@@ -24,7 +24,7 @@ class PersonalLoginScreen(MDScreen):
         print(password)
         
         #Check JSON file for existing account
-        json_path = os.path.dirname(os.path.abspath("users.json")) + '/personal.json'
+        json_path = os.path.dirname(os.path.abspath("personal.json")) + '/personal.json'
         with open(json_path, 'r') as p_users:
         	user_data = json.load(p_users)
         p_users.close()
