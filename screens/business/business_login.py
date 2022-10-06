@@ -11,7 +11,7 @@ class BusinessLoginScreen(MDScreen):
     password = StringProperty()
 
 
-    def loginButtonClicked(self):
+    def loginButtonClicked(self, root, app):
         print("Login Button Clicked")
 
         #get the input for the email
