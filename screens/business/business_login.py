@@ -24,7 +24,7 @@ class BusinessLoginScreen(MDScreen):
         print(password)
         
         #Check JSON file for existing account
-        json_path = os.path.dirname(os.path.abspath("users.json")) + '/business.json'
+        json_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
         with open(json_path, 'r') as b_users:
         	user_data = json.load(b_users)
         b_users.close()
