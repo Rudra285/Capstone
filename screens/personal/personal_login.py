@@ -12,7 +12,7 @@ class PersonalLoginScreen(MDScreen):
     password = StringProperty()
 
 
-    def loginButtonClicked(self):
+    def loginButtonClicked(self, root, app):
         print("Login Button Clicked")
 
         #Take the input for the email
