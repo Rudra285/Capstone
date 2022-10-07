@@ -33,7 +33,7 @@ class PersonalCreateAccountScreen(MDScreen):
         #Get user data from JSON into a dictionary
         json_path = os.path.dirname(os.path.abspath("personal.json")) + '/personal.json'
         with open(json_path, 'r') as p_users:
-        	user_data = json.load(p_users)
+            user_data = json.load(p_users)
         p_users.close()
         
         #Add new user data to dictionary
@@ -45,5 +45,5 @@ class PersonalCreateAccountScreen(MDScreen):
         
         #Write updated user data to JSON file
         with open(json_path, 'w') as p_users:
-        	json.dump(user_data, p_users)
+            json.dump(user_data, p_users)
         p_users.close()
