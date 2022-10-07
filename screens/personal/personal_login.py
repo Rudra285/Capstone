@@ -26,18 +26,18 @@ class PersonalLoginScreen(MDScreen):
         #Check JSON file for existing account
         json_path = os.path.dirname(os.path.abspath("personal.json")) + '/personal.json'
         with open(json_path, 'r') as p_users:
-        	user_data = json.load(p_users)
+            user_data = json.load(p_users)
         p_users.close()
         
         #Check email with corresponding password
         checklist = user_data.get(email)
         if checklist == None:
-        	print('No value')
+            print('No value')
         else:
-        	check = checklist[0]
-        	if check == password:
-        		print('verified')
-        		app.root.current = 'personal_home_screen'
-        	else:
-        		print('Account DNE')
+            check = checklist[0]
+            if check == password:
+                print('verified')
+                app.root.current = 'personal_home_screen'
+            else:
+                print('Account DNE')
 

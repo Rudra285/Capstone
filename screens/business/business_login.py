@@ -26,19 +26,19 @@ class BusinessLoginScreen(MDScreen):
         #Check JSON file for existing account
         json_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
         with open(json_path, 'r') as b_users:
-        	user_data = json.load(b_users)
+            user_data = json.load(b_users)
         b_users.close()
         
         #Check email with corresponding password
         checklist = user_data.get(email)
         if checklist == None:
-        	print('No value')
+            print('No value')
         else:
-        	check = checklist[0]
-        	if check == password:
-        		print('verified')
-        		app.root.current = 'business_home_screen'
-        	else:
-        		print('Account DNE')
+            check = checklist[0]
+            if check == password:
+                print('verified')
+                app.root.current = 'business_home_screen'
+            else:
+                print('Account DNE')
 
         #TODO Make sure the email and password are not empty
