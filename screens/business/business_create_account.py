@@ -38,51 +38,54 @@ class BusinessCreateAccountScreen(MDScreen):
 		email = self.ids.business_create_email.text
 		print(email)
 
-        #get the input for the password
+        	#get the input for the password
 		password = self.ids.business_create_password.text
 		print(password)
 
-        #Input for the business name
+        	#Input for the business name
 		name = self.ids.business_create_name.text
 		print(name)
 
-        #Input for the business street address
+        	#Input for the business street address
 		street = self.ids.business_create_street.text
 		print(street)
 
-        #Input for the business city location
+        	#Input for the business city location
 		city = self.ids.business_create_city.text
 		print(city)
 
-        #Input for the business province location
+        	#Input for the business province location
 		prov = self.ids.business_create_prov.text
 		print(prov)
 
-        #Input for the business country location
+        	#Input for the business country location
 		country = self.ids.business_create_country.text
 		print(country)
 
-        #Input for the business country location
+        	#Input for the business phone number
 		phone = self.ids.business_create_phone.text
-		print(phone)     
-        
-        #Generate Keypair
+		print(phone)
+		
+		postal = self.ids.business_create_postal.text
+		print(postal)
+		
+        	#Generate Keypair
 		user_key = generate_keypair()
     	
-    	#Get user data from JSON into a dictionary
+    		#Get user data from JSON into a dictionary
 		json_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
 		with open(json_path, 'r') as b_users:
 			user_data = json.load(b_users)
 		b_users.close()
     	
-    	#Add new user data to dictionary
+    		#Add new user data to dictionary
 		user_data[email] = []
 		user_data[email].append(password)
 		user_data[email].append(name)
 		user_data[email].append(user_key.public_key)
 		user_data[email].append(user_key.private_key)
     	
-    	#Write updated user data to JSON file
+    		#Write updated user data to JSON file
 		with open(json_path, 'w') as b_users:
 			json.dump(user_data, b_users)
 		b_users.close()
@@ -91,9 +94,13 @@ class BusinessCreateAccountScreen(MDScreen):
 		dealership = {
     		'data': {
     			'Dealership': {
-    				'Country': 'Canada',
-    				'Province': 'Alberta',
-    				'City': 'Edmonton',
+    				'Name': name,
+    				'Street': street,
+    				'Country': country,
+    				'Province': prov,
+    				'City': city,
+    				'Postal Code': postal,
+    				'Phone': phone
     			}
     		}
     	}
@@ -117,6 +124,7 @@ class BusinessCreateAccountScreen(MDScreen):
     	#get the txid of the dealership creation
 		txid_dealership = fulfilled_creation_tx_dealership['id']
 		print("What is the transaction ID for the creation of the dealership?", txid_dealership)
+		print("Dealership:", dealership)
 
 	def goBack(self, app):
             app.root.current = 'business_login_screen'
