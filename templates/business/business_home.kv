@@ -1,8 +1,71 @@
+<CardItem>
+    size_hint_y: None
+    height: "86dp"
+    padding: "4dp"
+    radius: 12
+
+    FitImage:
+        source: "assets/small_logo.png"
+        radius: root.radius
+        size_hint_x: None
+        width: root.height
+
+    MDBoxLayout:
+        orientation: "vertical"
+        adaptive_height: True
+        spacing: "6dp"
+        padding: "12dp", 0, 0, 0
+        pos_hint: {"center_y": .5}
+
+        MDLabel:
+            id: title_label
+            text: ""
+            font_style: "H5"
+            bold: True
+            adaptive_height: True
+
+        MDLabel:
+            id: subtitle_label
+            text: ""
+            theme_text_color: "Hint"
+            adaptive_height: True
+
+
+
 <BusinessHomeScreen>:
     name: 'business_home_screen'
-    BoxLayout:
-        Label:
-            text: 'Business Home Screen'
-        Button:
-            text: 'Go to the Startup Screen'
-            on_release: app.root.current = 'startup_screen'
+
+    MDBottomNavigation:
+
+        MDBottomNavigationItem:
+            text: 'Vehicles'
+            icon: 'car'
+
+            MDSliverAppbar:
+                max_height: "260dp"
+
+                MDSliverAppbarHeader:
+
+                    MDRelativeLayout:
+
+                        FitImage:
+                            source: "assets/small_logo.png"
+
+                MDSliverAppbarContent:
+                    id: content
+                    orientation: "vertical"
+                    padding: "12dp"
+                    spacing: "12dp"
+                    adaptive_height: True
+
+        MDBottomNavigationItem:
+            text: 'Maintenance'
+            icon: 'car-cog'
+
+        MDBottomNavigationItem:
+            text: 'Logout'
+            icon: 'logout'
+
+
+
+    
