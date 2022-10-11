@@ -42,3 +42,6 @@ class BusinessLoginScreen(MDScreen):
                 print('Account DNE')
 
         #TODO Make sure the email and password are not empty
+
+    def goBack(self, app):
+        app.root.current = 'startup_screen'
