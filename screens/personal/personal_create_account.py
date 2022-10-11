@@ -47,3 +47,6 @@ class PersonalCreateAccountScreen(MDScreen):
         with open(json_path, 'w') as p_users:
             json.dump(user_data, p_users)
         p_users.close()
+
+    def goBack(self, app):
+        app.root.current = 'personal_login_screen'
