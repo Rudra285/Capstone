@@ -6,8 +6,6 @@ from kivy.uix.screenmanager import ScreenManager
 from kivy.core.window import Window
 
 
-
-
 class WindowManager(ScreenManager):
     pass
 
