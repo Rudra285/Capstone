@@ -41,3 +41,6 @@ class PersonalLoginScreen(MDScreen):
             else:
                 print('Account DNE')
 
+    def goBack(self, app):
+        app.root.current = 'startup_screen'
+
