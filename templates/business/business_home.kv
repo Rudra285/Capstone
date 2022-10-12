@@ -36,6 +36,14 @@
     name: 'business_home_screen'
 
     MDBoxLayout:
+        MDLabel:
+    	    id: name
+    	    text: ''    
+    	MDFillRoundFlatButton:
+            id: newCar
+            text: "+"
+            md_bg_color: "green"
+            on_release: root.car_input()
 
         MDBottomNavigation:
 
@@ -207,6 +215,23 @@
 
                 on_tab_press: app.stop()
 
+<CarPrompt>
+    orientation: "vertical"
+    spacing: "12dp"
+    size_hint_y: None
+    height: "240dp"
 
+    MDTextField:
+    	id: make
+        hint_text: "Enter Make"
+    MDTextField:
+    	id: model
+        hint_text: "Enter model"
+    MDTextField:
+    	id: year
+        hint_text: "Enter year"
+    MDTextField:
+    	id: body
+        hint_text: "Enter body type"
 
     
