@@ -3,8 +3,12 @@
 
     MDBoxLayout:
         orientation: 'vertical'
-        rows: 3 
-        rows_minimum: {0: 100, 1: 300, 2: 100}
+
+        MDTopAppBar:
+            elevation: 4
+            title: app.title
+            on_action_button: root.goBack()
+            left_action_items: [["arrow-left-bold-outline", lambda x: root.goBack(app)]] 
 
         Image:
             source: "assets/logo.png"
@@ -86,8 +90,6 @@
         MDBottomAppBar:
 
             MDTopAppBar:
-                title: "Create Business Account"
                 icon: "check"
                 type: "bottom"
                 on_action_button: root.onClick()
-                left_action_items: [["arrow-left-bold-outline", lambda x: root.goBack(app)]] 

@@ -3,8 +3,14 @@
 
     MDBoxLayout:
         orientation: 'vertical'
-        padding: 10
-        spacing: 20
+        rows: 2
+        rows_minimum: {0: 100, 1: 300}
+
+        MDTopAppBar:
+            elevation: 4
+            title: app.title
+            on_action_button: root.goBack()
+            left_action_items: [["arrow-left-bold-outline", lambda x: root.goBack(app)]] 
 
         Image:
             source: "assets/logo.png"
@@ -13,55 +19,47 @@
             size: "300dp", "200dp"
             allow_stretch: True
 
-        MDBottomNavigation:
-            name: "business_login_to_startup"
-                
-            MDBottomNavigationItem:
-                name: 'back_to_startup_personal'
-                text: 'Back'
-                icon: 'arrow-left-bold-outline'
-                on_tab_release: app.root.current = 'startup_screen'
+        MDFloatLayout:
 
-    MDFloatLayout:
+            MDLabel:
+                text: "Login to your Business Account below"
+                theme_text_color: "Custom"
+                font_style: "H6"
+                text_color: 76/255, 175/255, 80/255, 1
+                halign: "center"
+                pos_hint: {"center_y": 0.9}
 
-        MDLabel:
-            text: "Login to your Business Account below"
-            theme_text_color: "Custom"
-            font_style: "H6"
-            text_color: 76/255, 175/255, 80/255, 1
-            halign: "center"
-            pos_hint: {"center_y": 0.6}
+            MDRaisedButton:
+                id: business_login_button
+                text: root.btn_text
+                size_hint: None, None
+                halign: "center"
+                pos_hint: {"center_x": 0.5, "center_y": 0.3}
+                font_size: "18sp"
+                width: root.width*0.2
+                on_release: root.loginButtonClicked(root, app)
 
-        MDRaisedButton:
-            id: business_login_button
-            text: root.btn_text
-            size_hint: None, None
-            halign: "center"
-            pos_hint: {"center_x": 0.5, "center_y": 0.3}
-            font_size: "18sp"
-            width: root.width*0.2
-            on_release: root.loginButtonClicked(root, app)
+            MDTextButton:
+                text: "Create a Business Account"
+                pos_hint: {"center_x": 0.8, "center_y": 0.2}
+                on_release: app.root.current = 'business_create_account_screen'
 
-        MDTextButton:
-            text: "Create a Business Account"
-            pos_hint: {"center_x": 0.75, "center_y": 0.20}
-            on_release: app.root.current = 'business_create_account_screen'
+            MDTextField:
+                id: business_login_email
+                hint_text: root.email_prompt
+                helper_text_mode: "persistent"
+                icon_left: "email"
+                pos_hint: {"center_x": 0.5, "center_y": 0.7}
+                size_hint_x: 0.6
 
-        MDTextField:
-            id: business_login_email
-            hint_text: root.email_prompt
-            helper_text_mode: "persistent"
-            icon_left: "email"
-            pos_hint: {"center_x": 0.5, "center_y": 0.5}
-            size_hint_x: 0.6
+            MDTextField:
+                id: business_login_password
+                hint_text: root.password_prompt
+                password: True
+                icon_left: "key-variant"
+                pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                size_hint_x: 0.6
 
-        MDTextField:
-            id: business_login_password
-            hint_text: root.password_prompt
-            password: True
-            icon_left: "key-variant"
-            pos_hint: {"center_x": 0.5, "center_y": 0.4}
-            size_hint_x: 0.6
 
 
 
