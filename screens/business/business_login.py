@@ -37,8 +37,13 @@ class BusinessLoginScreen(MDScreen):
             check = checklist[0]
             if check == password:
                 print('verified')
+                root.manager.get_screen('business_home_screen').ids.name.text = checklist[1]
+                root.manager.get_screen('business_home_screen').load()
                 app.root.current = 'business_home_screen'
             else:
                 print('Account DNE')
 
         #TODO Make sure the email and password are not empty
+
+        def goBack(self, app, root):
+            app.root.current = 'startup_screen'
