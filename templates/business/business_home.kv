@@ -35,185 +35,252 @@
 <BusinessHomeScreen>:
     name: 'business_home_screen'
 
-    MDBoxLayout:
-        MDLabel:
-    	    id: name
-    	    text: ''    
-    	MDFillRoundFlatButton:
-            id: newCar
-            text: "+"
-            md_bg_color: "green"
-            on_release: root.car_input()
+    # MDBoxLayout:
+    #     MDLabel:
+    # 	    id: name
+    # 	    text: ''    
+    # 	MDFillRoundFlatButton:
+    #         id: newCar
+    #         text: "+"
+    #         md_bg_color: "green"
+    #         on_release: root.car_input()
 
-        MDBottomNavigation:
+    MDBottomNavigation:
 
-            MDBottomNavigationItem:
-                name: "vehicles"
-                text: 'Vehicles'
-                icon: 'car'
+        MDBottomNavigationItem:
+            name: "vehicles"
+            text: 'Vehicles Owned'
+            icon: 'car-search'
 
-                MDSliverAppbar:
-                    max_height: "260dp"
+            MDSliverAppbar:
+                max_height: "260dp"
 
-                    MDSliverAppbarHeader:
+                MDSliverAppbarHeader:
 
-                        MDRelativeLayout:
+                    MDRelativeLayout:
 
-                            FitImage:
-                                source: "assets/small_logo.png"
+                        FitImage:
+                            source: "assets/small_logo.png"
 
-                    MDSliverAppbarContent:
-                        id: content
-                        orientation: "vertical"
-                        padding: "12dp"
-                        spacing: "12dp"
-                        adaptive_height: True
+                MDSliverAppbarContent:
+                    id: content
+                    orientation: "vertical"
+                    padding: "12dp"
+                    spacing: "12dp"
+                    adaptive_height: True
 
 
-            MDBottomNavigationItem:
-                name: "maintenance"
-                text: 'Maintenance'
-                icon: 'car-cog'
+        MDBottomNavigationItem:
+            name: "maintenance"
+            text: 'Maintenance'
+            icon: 'car-wrench'
 
-                MDFloatLayout:
+            MDFloatLayout:
 
-                    MDCard:
-                        size_hint: .8, .8
-                        pos_hint: {"center_x": .5, "center_y": .5}
+                MDCard:
+                    size_hint: .8, .8
+                    pos_hint: {"center_x": .5, "center_y": .5}
 
-                        Carousel:
-                            id: form
+                    Carousel:
+                        id: form
 
-                            MDFloatLayout:
-                                id: customer_info
+                        MDFloatLayout:
+                            id: customer_info
 
-                                MDTextField:
-                                    id: vin
-                                    hint_text: "Customers VIN"
-                                    size_hint_x: .8                               
-                                    pos_hint: {"center_x": .5, "center_y": .48}
+                            MDTextField:
+                                id: vin
+                                hint_text: "Customers VIN"
+                                size_hint_x: .8                               
+                                pos_hint: {"center_x": .5, "center_y": .48}
 
-                                MDTextField:
-                                    id: mileage
-                                    hint_text: "Customers vehicle km's"
-                                    size_hint_x: .8
-                                    pos_hint: {"center_x": .5, "center_y": .36}
+                            MDTextField:
+                                id: mileage
+                                hint_text: "Customers vehicle km's"
+                                size_hint_x: .8
+                                pos_hint: {"center_x": .5, "center_y": .36}
 
-                                MDRaisedButton:
-                                    text: "NEXT"
-                                    size_hint_x: .8
-                                    pos_hint: {"center_x": .5, "center_y": .2}
-                                    on_release: root.next()
+                            MDRaisedButton:
+                                text: "NEXT"
+                                size_hint_x: .8
+                                pos_hint: {"center_x": .5, "center_y": .2}
+                                on_release: root.next()
 
-                            MDFloatLayout:
-                                id: maintenance_info
+                        MDFloatLayout:
+                            id: maintenance_info
 
-                                MDTextField:
-                                    id: maint_performed
-                                    hint_text: "Maintenance Performed"
-                                    multiline: True
-                                    size_hint_x: .8
-                                    pos_hint: {"center_x": .5, "center_y": .48}
+                            MDTextField:
+                                id: maint_performed
+                                hint_text: "Maintenance Performed"
+                                multiline: True
+                                size_hint_x: .8
+                                pos_hint: {"center_x": .5, "center_y": .48}
 
-                                MDRaisedButton:
-                                    text: "PREVIOUS"
-                                    size_hint_x: .39
-                                    pos_hint: {"center_x": .3, "center_y": .2}
-                                    on_release: root.previous()
+                            MDRaisedButton:
+                                text: "PREVIOUS"
+                                size_hint_x: .39
+                                pos_hint: {"center_x": .3, "center_y": .2}
+                                on_release: root.previous()
 
-                                MDRaisedButton:
-                                    text: "NEXT"
-                                    size_hint_x: .39
-                                    pos_hint: {"center_x": .7, "center_y": .2}
-                                    on_release: root.next_one()
+                            MDRaisedButton:
+                                text: "NEXT"
+                                size_hint_x: .39
+                                pos_hint: {"center_x": .7, "center_y": .2}
+                                on_release: root.next_one()
 
-                            MDFloatLayout:
+                        MDFloatLayout:
 
-                                MDTextField:
-                                    id: mech_id
-                                    hint_text: "Mechanic ID"
-                                    size_hint_x: .8
-                                    pos_hint: {"center_x": .5, "center_y": .48}
+                            MDTextField:
+                                id: mech_id
+                                hint_text: "Mechanic ID"
+                                size_hint_x: .8
+                                pos_hint: {"center_x": .5, "center_y": .48}
 
-                                MDRaisedButton:
-                                    text: "PREVIOUS"
-                                    size_hint_x: .39
-                                    pos_hint: {"center_x": .3, "center_y": .2}
-                                    on_release: root.previous_one()
+                            MDRaisedButton:
+                                text: "PREVIOUS"
+                                size_hint_x: .39
+                                pos_hint: {"center_x": .3, "center_y": .2}
+                                on_release: root.previous_one()
 
-                                MDRaisedButton:
-                                    text: "SUBMIT"
-                                    size_hint_x: .39
-                                    pos_hint: {"center_x": .7, "center_y": .2}
+                            MDRaisedButton:
+                                text: "SUBMIT"
+                                size_hint_x: .39
+                                pos_hint: {"center_x": .7, "center_y": .2}
 
-                    MDLabel:
-                        text: "Maintenance Form"
-                        bold: True
-                        pos_hint: {"center_x": .8, "center_y": .8}
-                        font_style: "H4"
+                MDLabel:
+                    text: "Maintenance Form"
+                    bold: True
+                    pos_hint: {"center_x": .8, "center_y": .8}
+                    font_style: "H4"
 
-                    MDLabel:
-                        id: customer_label
-                        theme_text_color: "Custom"
-                        text: "Customer"
-                        pos_hint: {"center_x": .7, "center_y": .7}
-                        font_style: "H6"
-                        text_color: (1, 1, 1, 1)
+                MDLabel:
+                    id: customer_label
+                    theme_text_color: "Custom"
+                    text: "Customer"
+                    pos_hint: {"center_x": .7, "center_y": .7}
+                    font_style: "H6"
+                    text_color: (1, 1, 1, 1)
+
+                MDIconButton:
+                    id: customer_icon
+                    icon: "numeric-1-circle"
+                    pos_hint: {"center_x": .25, "center_y": .65}
+                    user_font_size: "35sp"
+                    theme_text_color: "Custom"
+
+                MDProgressBar:
+                    id: progress_zero
+                    size_hint_x: .2
+                    pos_hint: {"center_x": .375, "center_y": .65}
+
+                MDLabel:
+                    id: maint_label
+                    text: "Maintenance"
+                    theme_text_color: "Custom"
+                    pos_hint: {"center_x": .92, "center_y": .7}
+                    font_style: "H6"
+                    text_color: (1, 1, 1, 1)
+
+                MDIconButton:
+                    id: maint_icon
+                    icon: "numeric-2-circle"
+                    pos_hint: {"center_x": .5, "center_y": .65}
+                    user_font_size: "35sp"
+                    theme_text_color: "Custom"
+
+                MDProgressBar:
+                    id: progress_one
+                    size_hint_x: .2
+                    pos_hint: {"center_x": .625, "center_y": .65}
+
+                MDLabel:
+                    id: submit_label
+                    text: "Submit"
+                    theme_text_color: "Custom"
+                    pos_hint: {"center_x": 1.2, "center_y": .7}
+                    font_style: "H6"
+                    text_color: (1, 1, 1, 1)
+
+                MDIconButton:
+                    id: submit_icon
+                    icon: "numeric-3-circle"
+                    pos_hint: {"center_x": .75, "center_y": .65}
+                    user_font_size: "35sp"
+                    theme_text_color: "Custom"
+                    on_press: root.on_submit()
+
+        MDBottomNavigationItem:
+            name: 'create vehicle'
+            text: "Create Vehicle"
+            icon: 'car'
+
+            MDBoxLayout:
+                orientation: 'vertical'
+
+                Image:
+                    source: "assets/logo.png"
+                    size_hint: None, None
+                    pos_hint: {"center_x": .5}
+                    size: "300dp", "200dp"
+                    allow_stretch: True
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    id: dealer_create_car_box
+                    cols: 1
+
+                    MDTextField:
+                        id: create_car_make
+                        hint_text: root.make_prompt
+                        helper_text_mode: "persistent"
+                        icon_left: "email"
+                        size_hint_x: .6
+                        pos_hint: {"center_x": .5}
+
+                    MDTextField:
+                        id: create_car_model
+                        hint_text: root.model_prompt
+                        helper_text_mode: "persistent"
+                        icon_left: "key-variant"
+                        size_hint_x: .6
+                        pos_hint: {"center_x": .5}
+
+                    MDTextField:
+                        id: create_car_year
+                        hint_text: root.year_prompt
+                        helper_text_mode: "persistent"
+                        icon_left: "account"
+                        size_hint_x: .6
+                        pos_hint: {"center_x": .5}
+
+                    MDTextField:
+                        id: create_car_vin
+                        hint_text: root.vin_prompt
+                        helper_text_mode: "persistent"
+                        icon_left: "cellphone"
+                        size_hint_x: .6
+                        pos_hint: {"center_x": .5}
+
+                    MDTextField:
+                        id: create_car_mileage
+                        hint_text: root.mileage_prompt
+                        helper_text_mode: "persistent"
+                        icon_left: "google-street-view"
+                        size_hint_x: .6
+                        pos_hint: {"center_x": .5}
 
                     MDIconButton:
-                        id: customer_icon
-                        icon: "numeric-1-circle"
-                        pos_hint: {"center_x": .25, "center_y": .65}
-                        user_font_size: "35sp"
-                        theme_text_color: "Custom"
+                        id: submit__icon_new_vehicle
+                        icon: "plus-circle"
+                        font_size: "150sp"
+                        pos_hint: {"center_x": .5}
+                        icon_size: "64sp"
+                        on_press: root.onCreateVehicleClick()
 
-                    MDProgressBar:
-                        id: progress_zero
-                        size_hint_x: .2
-                        pos_hint: {"center_x": .375, "center_y": .65}
+        MDBottomNavigationItem:
+            text: 'Logout'
+            icon: 'logout'
 
-                    MDLabel:
-                        id: maint_label
-                        text: "Maintenance"
-                        theme_text_color: "Custom"
-                        pos_hint: {"center_x": .92, "center_y": .7}
-                        font_style: "H6"
-                        text_color: (1, 1, 1, 1)
-
-                    MDIconButton:
-                        id: maint_icon
-                        icon: "numeric-2-circle"
-                        pos_hint: {"center_x": .5, "center_y": .65}
-                        user_font_size: "35sp"
-                        theme_text_color: "Custom"
-
-                    MDProgressBar:
-                        id: progress_one
-                        size_hint_x: .2
-                        pos_hint: {"center_x": .625, "center_y": .65}
-
-                    MDLabel:
-                        id: submit_label
-                        text: "Submit"
-                        theme_text_color: "Custom"
-                        pos_hint: {"center_x": 1.2, "center_y": .7}
-                        font_style: "H6"
-                        text_color: (1, 1, 1, 1)
-
-                    MDIconButton:
-                        id: submit_icon
-                        icon: "numeric-3-circle"
-                        pos_hint: {"center_x": .75, "center_y": .65}
-                        user_font_size: "35sp"
-                        theme_text_color: "Custom"
-                        on_press: root.on_submit()
-
-
-            MDBottomNavigationItem:
-                text: 'Logout'
-                icon: 'logout'
-
-                on_tab_press: app.stop()
+            on_tab_press: app.stop()
 
 <CarPrompt>
     orientation: "vertical"
