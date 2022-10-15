@@ -133,8 +133,6 @@ class BusinessHomeScreen(MDScreen):
 
         #TODO IF any cars are owned determine how many, put that in a variable
         ##Example of 10 CardItem()'s being created
-		# for x in range(10):
-		# 	self.ids.content.add_widget(CardItem())
 
         ##TODO figure out how to change the title and subtitle in each cardItem
         ##TODO based on the vehicles being shown. 
@@ -153,31 +151,39 @@ class BusinessHomeScreen(MDScreen):
 		self.ids.customer_icon.text_color = (76/255, 175/255, 80/255, 1)
 		self.ids.customer_icon.icon = "check-decagram"
 
-	def next_one(self):
-		self.ids.form.load_next(mode="next")
-		self.ids.maint_label.text_color=(76/255, 175/255, 80/255, 1)
-		self.ids.progress_one.value = 100
-		self.ids.maint_icon.text_color = (76/255, 175/255, 80/255, 1)
-		self.ids.maint_icon.icon = "check-decagram"
-
 	def previous(self):
 		self.ids.form.load_previous()
 		self.ids.customer_label.text_color=(1, 1, 1, 1)
 		self.ids.progress_zero.value = 0
 		self.ids.customer_icon.icon = "numeric-1-circle"
 		self.ids.customer_icon.text_color = (1, 1, 1, 1)
-
-
-	def previous_one(self):
-		self.ids.form.load_previous()
-		self.ids.maint_label.text_color = (1, 1, 1, 1)
-		self.ids.progress_one.value = 0
-		self.ids.maint_icon.icon = "numeric-2-circle"
-		self.ids.maint_icon.text_color = (1, 1, 1, 1)
-
-
-
-
-
-
-
+	
+	def submit(self):
+		bdb_root_url = 'https://test.ipdb.io'  # Use YOUR BigchainDB Root URL here
+		bdb = BigchainDB(bdb_root_url)
+		
+		customer_vin = self.ids.vin.text
+		print(customer_vin)
+		customer_mileage = self.ids.mileage.text
+		print(customer_mileage)
+		maint_data = self.ids.maint_performed.text
+		print(maint_data)
+		
+		temp = bdb.assets.get(search = customer_vin)[0]
+		print(temp)
+		
+		info = bdb.transactions.get(asset_id = temp['id'])
+		car_key = info[0]['inputs'][0]['owners_before'][0]
+		print(car_key)
+		#IN PROGRESS-need to find a way to retrieve maintainence
+		maintenance_asset = {
+			'data': {
+				'vehicle': {
+					'make': 'Lincoln',
+					'model': 'MKX',
+					'year': '2008',
+					'VIN': 'SUV',
+					'Mileage': '1,000km',
+				}
+			}
+		}
