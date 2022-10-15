@@ -38,6 +38,9 @@ class BusinessHomeScreen(MDScreen):
 	def __init__(self, **kwargs):
 		super(BusinessHomeScreen, self).__init__(**kwargs)
 		Clock.schedule_once(self.on_start)
+		
+	def onTransferVehicleClick(self):
+		pass
 
 	def onCreateVehicleClick(self):
 
