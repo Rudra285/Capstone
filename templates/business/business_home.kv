@@ -4,31 +4,40 @@
     padding: "4dp"
     radius: 12
 
-    FitImage:
-        source: "assets/small_logo.png"
-        radius: root.radius
-        size_hint_x: None
-        width: root.height
+    MDCardSwipeLayerBox:
 
-    MDBoxLayout:
-        orientation: "vertical"
-        adaptive_height: True
-        spacing: "6dp"
-        padding: "12dp", 0, 0, 0
-        pos_hint: {"center_y": .5}
+        MDIconButton:
+            icon: "transfer"
+            pos_hint: {"center_y": .5}
+            on_release: root.onTransferClick()
 
-        MDLabel:
-            id: title_label
-            text: ""
-            font_style: "H5"
-            bold: True
+    MDCardSwipeFrontBox:
+
+        FitImage:
+            source: "assets/small_logo.png"
+            radius: root.radius
+            size_hint_x: None
+            width: root.height
+
+        MDBoxLayout:
+            orientation: "vertical"
             adaptive_height: True
+            spacing: "6dp"
+            padding: "12dp", 0, 0, 0
+            pos_hint: {"center_y": .5}
 
-        MDLabel:
-            id: subtitle_label
-            text: ""
-            theme_text_color: "Hint"
-            adaptive_height: True
+            MDLabel:
+                id: title_label
+                text: ""
+                font_style: "H5"
+                bold: True
+                adaptive_height: True
+
+            MDLabel:
+                id: subtitle_label
+                text: ""
+                theme_text_color: "Hint"
+                adaptive_height: True
 
 
 
@@ -254,6 +263,14 @@
                         icon_left: "cellphone"
                         size_hint_x: .6
                         pos_hint: {"center_x": .5}
+                        
+                    #MDTextField:
+                    #    id: create_car_mileage
+                    #    hint_text: root.mileage_prompt
+                    #    helper_text_mode: "persistent"
+                    #    icon_left: "google-street-view"
+                    #    size_hint_x: .6
+                    #    pos_hint: {"center_x": .5}
 
                     MDIconButton:
                         id: submit__icon_new_vehicle
