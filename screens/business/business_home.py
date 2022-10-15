@@ -53,6 +53,8 @@ class BusinessHomeScreen(MDScreen):
 		print(year)
 		vin = self.ids.create_car_vin.text
 		print(vin)
+		#mileage = self.ids.create_car_mileage.text
+		#print(mileage)
 		print(self.ids.name.text)
 		email = self.ids.name.text
 		json_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
