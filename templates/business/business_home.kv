@@ -35,15 +35,10 @@
 <BusinessHomeScreen>:
     name: 'business_home_screen'
 
-    # MDBoxLayout:
-    #     MDLabel:
-    # 	    id: name
-    # 	    text: ''    
-    # 	MDFillRoundFlatButton:
-    #         id: newCar
-    #         text: "+"
-    #         md_bg_color: "green"
-    #         on_release: root.car_input()
+    MDBoxLayout:
+        MDLabel:
+     	   id: name
+     	   text: ''    
 
     MDBottomNavigation:
 
@@ -257,14 +252,6 @@
                         hint_text: root.vin_prompt
                         helper_text_mode: "persistent"
                         icon_left: "cellphone"
-                        size_hint_x: .6
-                        pos_hint: {"center_x": .5}
-
-                    MDTextField:
-                        id: create_car_mileage
-                        hint_text: root.mileage_prompt
-                        helper_text_mode: "persistent"
-                        icon_left: "google-street-view"
                         size_hint_x: .6
                         pos_hint: {"center_x": .5}
 
