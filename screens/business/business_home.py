@@ -17,9 +17,6 @@ class CardItem(MDCard, RectangularElevationBehavior):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.elevation = 3
-
-class CarPrompt(BoxLayout):
-    pass
     
 class BusinessHomeScreen(MDScreen):
 
@@ -36,7 +33,6 @@ class BusinessHomeScreen(MDScreen):
 	mileage = StringProperty()
 
 	submit = StringProperty("Submit button pressed")
-	car_dialog = None
 
 	def __init__(self, **kwargs):
 		super(BusinessHomeScreen, self).__init__(**kwargs)
@@ -45,83 +41,42 @@ class BusinessHomeScreen(MDScreen):
 	def onCreateVehicleClick(self):
 
 		print("Create Car Button Clicked")
-
-		make = self.ids.create_car_make.text
-		print(make)
-
-		model = self.ids.create_car_model.text
-		print(model)
-
-		year = self.ids.create_car_year.text
-		print(year)
-
-		vin = self.ids.create_car_vin.text
-		print(vin)
-
-		mileage = self.ids.create_car_mileage.text
-		print(mileage)
-    
-	def car_input(self):
-		if not self.car_dialog:
-			self.car_dialog = MDDialog(
-    			type = 'custom',
-    			content_cls = CarPrompt(),
-    			buttons = [
-    				MDFlatButton(
-    					text = 'Cancel',
-    					on_press = self.close_carlog
-    				),
-    				MDFlatButton(
-    					text = 'Confirm',
-    					on_press = self.confirm_create
-    				)
-    			]
-    		)
-		self.car_dialog.open()
-    
-	def close_carlog(self, obj):
-		self.car_dialog.dismiss()
-	def confirm_create(self, obj):
-		json_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
-		with open(json_path, 'r') as b_users:
-			user_data = json.load(b_users)
-		b_users.close()
-		name = self.ids.name.text
-		for data in user_data:
-			if user_data.get(data)[1] == name:
-				email = data
-				break
-		make = self.car_dialog.content_cls.ids.make.text
-		model = self.car_dialog.content_cls.ids.model.text
-		year = self.car_dialog.content_cls.ids.year.text
-		body = self.car_dialog.content_cls.ids.body.text
-		self.create_car(email, make, model, year, body)
-		self.car_dialog.dismiss()
-    
-	def create_car(self, email, make, model, year, body):
 		car_key = generate_keypair()
 		bdb_root_url = 'https://test.ipdb.io'  # Use YOUR BigchainDB Root URL here
 		bdb = BigchainDB(bdb_root_url)
+
+		make = self.ids.create_car_make.text
+		print(make)
+		model = self.ids.create_car_model.text
+		print(model)
+		year = self.ids.create_car_year.text
+		print(year)
+		vin = self.ids.create_car_vin.text
+		print(vin)
+		print(self.ids.name.text)
+		email = self.ids.name.text
 		json_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
 		with open(json_path, 'r') as b_users:
 			user_data = json.load(b_users)
 		b_users.close()
+		
 		info = user_data.get(email)
 		print(info)
 		recipient_pub = info[-2] #Public key location
-    	#Make a car asset that is brand new
+		
+		#Make a car asset that is brand new
 		vehicle_asset = {
-    		'data': {
-    			'vehicle': {
-    				'make': make,
-    				'model': model,
-    				'year': year,
-    				'body': body,
-    				'mileage': '0km',
+    			'data': {
+    				'vehicle': {
+    					'make': make,
+    					'VIN': vin,
+    					'model': model,
+    					'year': year,
+    					'mileage': '0km',
+    				}
     			}
     		}
-    	}
-		print(vehicle_asset['data']['vehicle']['make'], vehicle_asset['data']['vehicle']['model'], vehicle_asset['data']['vehicle']['year'], vehicle_asset['data']['vehicle']['body'])
+		print(vehicle_asset['data']['vehicle']['make'], vehicle_asset['data']['vehicle']['model'], vehicle_asset['data']['vehicle']['year'], vehicle_asset['data']['vehicle']['VIN'])
 		prepared_creation_tx_car = bdb.transactions.prepare(
     		operation='CREATE',
     		signers=car_key.public_key,
@@ -154,11 +109,8 @@ class BusinessHomeScreen(MDScreen):
 		with open(json_path, 'r') as b_users:
 			user_data = json.load(b_users)
 		b_users.close()
-		name = self.ids.name.text
-		for data in user_data:
-			if user_data.get(data)[1] == name:
-				pub = user_data.get(data)[-2]
-				break
+		email = self.ids.name.text
+		pub = user_data.get(email)[-2]
 		data_list = bdb.metadata.get(search = pub)
 		print(data_list)
 		for i in data_list:
