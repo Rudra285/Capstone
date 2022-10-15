@@ -12,8 +12,9 @@ from bigchaindb_driver import BigchainDB
 from bigchaindb_driver.crypto import generate_keypair
 import os
 import json
+from  kivymd.uix.card import MDCardSwipe
 
-class CardItem(MDCard, RectangularElevationBehavior):
+class CardItem(MDCardSwipe):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.elevation = 3
@@ -123,13 +124,14 @@ class BusinessHomeScreen(MDScreen):
 			if temp[-1]['operation'] == 'CREATE':
 				vehicle = temp[-1]['asset']
 			self.add_card(vehicle, temp[-1])	
+
 	def on_start(self, *args):
 		pass
-    	
+
         #TODO IF any cars are owned determine how many, put that in a variable
         ##Example of 10 CardItem()'s being created
-        #for x in range(10):
-         #   self.ids.content.add_widget(CardItem())
+		# for x in range(10):
+		# 	self.ids.content.add_widget(CardItem())
 
         ##TODO figure out how to change the title and subtitle in each cardItem
         ##TODO based on the vehicles being shown. 
