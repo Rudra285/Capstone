@@ -1,23 +1,60 @@
 from kivymd.uix.screen import MDScreen
-from kivy.uix.scrollview import ScrollView
-from kivymd.uix.label import MDLabel
 from kivy.properties import StringProperty
-from kivymd.uix.card import MDCard
-from kivymd.uix.behaviors import RectangularElevationBehavior
 from kivy.clock import Clock
 from kivymd.uix.dialog import MDDialog
-from kivy.uix.boxlayout import BoxLayout
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.textfield import MDTextField
 from kivymd.uix.button import MDFlatButton
-from bigchaindb_driver import BigchainDB
-from bigchaindb_driver.crypto import generate_keypair
+# from bigchaindb_driver import BigchainDB
+# from bigchaindb_driver.crypto import generate_keypair
 import os
 import json
 from  kivymd.uix.card import MDCardSwipe
 
-class CardItem(MDCardSwipe):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.elevation = 3
+class CarItem(MDCardSwipe):
+
+	##TODO connect the make/model variables to the make/model of the car being created
+	make = StringProperty()
+	model = StringProperty()
+
+
+	dialog = None
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.elevation = 3
+
+	def transfer_dialog(self):
+		if not self.dialog:
+			self.dialog = MDDialog(
+                title="Transfer Vehicle:",
+                type="custom",
+                content_cls=MDBoxLayout(
+                    MDTextField(
+                        hint_text="New Owners Email",
+                    ),
+                    MDTextField(
+                        hint_text="Your Password",
+                    ),
+                    orientation="vertical",
+                    spacing="12dp",
+                    size_hint_y=None,
+                    height="120dp",
+                ),
+				##TODO Figure out how to do the on_press bind with Cancel and Submit. 
+				##TODO must get the user input when SUBMIT is pressed
+				##TODO must exit the dialog when CANCEL is pressed
+                buttons=[
+                    MDFlatButton(
+                        text="CANCEL",
+                    ),
+                    MDFlatButton(
+                        text="SUBMIT",
+                    ),
+                ],
+            )
+		self.dialog.open()
+	
     
 class BusinessHomeScreen(MDScreen):
 
@@ -57,8 +94,8 @@ class BusinessHomeScreen(MDScreen):
 		print(year)
 		vin = self.ids.create_car_vin.text
 		print(vin)
-		#mileage = self.ids.create_car_mileage.text
-		#print(mileage)
+		mileage = self.ids.create_car_mileage.text
+		print(mileage)
 		print(self.ids.name.text)
 		email = self.ids.name.text
 		json_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
@@ -105,7 +142,7 @@ class BusinessHomeScreen(MDScreen):
 		self.add_card(vehicle_asset, fulfilled_creation_tx_car)
     
 	def add_card(self, vehicle, fulfilled_creation_tx_car):
-		self.ids.content.add_widget(CardItem())
+		self.ids.content.add_widget(CarItem())
     
 	def load(self):
     	#Load all vehicles owned by the business
@@ -132,11 +169,11 @@ class BusinessHomeScreen(MDScreen):
 		pass
 
         #TODO IF any cars are owned determine how many, put that in a variable
-        ##Example of 10 CardItem()'s being created
-
-        ##TODO figure out how to change the title and subtitle in each cardItem
-        ##TODO based on the vehicles being shown. 
-        ##TODO example: title = Make, subtitle = Model
+        ##Example of 10 CarItem()'s being created
+		for i in range(20):
+			self.ids.content.add_widget(
+                CarItem()
+            )
 
 	def clock_next(self, app):
 		Clock.schedule_once(self.next)
@@ -175,7 +212,8 @@ class BusinessHomeScreen(MDScreen):
 		info = bdb.transactions.get(asset_id = temp['id'])
 		car_key = info[0]['inputs'][0]['owners_before'][0]
 		print(car_key)
-		#IN PROGRESS-need to find a way to retrieve maintainence
+		
+		#TODO-need to find a way to retrieve maintainence
 		maintenance_asset = {
 			'data': {
 				'vehicle': {
