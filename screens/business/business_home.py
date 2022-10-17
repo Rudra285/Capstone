@@ -219,10 +219,6 @@ class BusinessHomeScreen(MDScreen):
 	def on_start(self, *args):
 		pass
 
-        #TODO IF any cars are owned determine how many, put that in a variable
-        ##Example of 10 CarItem()'s being created
-		
-
 	def clock_next(self, app):
 		Clock.schedule_once(self.next)
 		
@@ -261,15 +257,87 @@ class BusinessHomeScreen(MDScreen):
 		car_key = info[0]['inputs'][0]['owners_before'][0]
 		print(car_key)
 		
+		json_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
+		with open(json_path, 'r') as b_users:
+			user_data = json.load(b_users)
+		b_users.close()
+		email = self.ids.name.text
+		pub = user_data.get(email)[-2]
+		pvt = user_data.get(email)[-1]
 		#TODO-need to find a way to retrieve maintainence
-		maintenance_asset = {
+		#WHATS INSIDE THE MAINTAINANCE ASSET?
+		#maintenance_asset = {
 			'data': {
 				'vehicle': {
 					'make': 'Lincoln',
 					'model': 'MKX',
 					'year': '2008',
-					'VIN': 'SUV',
+					'VIN': customer_vin,
 					'Mileage': '1,000km',
 				}
 			}
 		}
+		
+		#Prepare the creation of the maintenance owned by the mechanic shop
+		prepared_creation_tx_maintenance = bdb.transactions.prepare(
+		operation='CREATE',
+		signers=pub,
+		asset=maintenance_asset,
+		metadata= {'maintenance': maint_data, 'car_id': temp['id']}
+		)
+		
+		#fulfill the creation of the maintenance owned by the mechanic shop
+		fulfilled_creation_tx_maintenance = bdb.transactions.fulfill(
+			prepared_creation_tx_maintenance,
+			private_keys=pvt
+		)
+		
+		#send the creation of the maintenance to bigchaindb
+		sent_creation_tx_maintenance = bdb.transactions.send_commit(fulfilled_creation_tx_maintenance)
+		
+		#get the txid of the maintenance creation
+		txid_maintenance = fulfilled_creation_tx_maintenance['id']
+		print("What is the transaction ID for the creation of the maintenance?", txid_maintenance)
+		
+		creation_tx_maintenance = fulfilled_creation_tx_maintenance
+		
+		asset_id_maintenance = creation_tx_maintenance['id']
+		
+		transfer_asset_maintenance = {
+			'id': asset_id_maintenance,
+		}
+		
+		output_index = 0
+		output = creation_tx_maintenance['outputs'][output_index]
+		
+		transfer_input_maintenance = {
+			'fulfillment': output['condition']['details'],
+			'fulfills': {
+				'output_index': output_index,
+				'transaction_id': creation_tx_maintenance['id']
+			},
+			'owners_before': output['public_keys']
+		}
+		
+		prepared_transfer_tx_maintenance = bdb.transactions.prepare(
+			operation='TRANSFER',
+			asset=transfer_asset_maintenance,
+			inputs=transfer_input_maintenance,
+			recipients=car_key,
+		)
+		
+		fulfilled_transfer_tx_maintenance = bdb.transactions.fulfill(
+			prepared_transfer_tx_maintenance,
+			private_keys=pvt,
+		)
+		
+		sent_transfer_tx_maintenance = bdb.transactions.send_commit(fulfilled_transfer_tx_maintenance)
+		
+		print("Is car the owner of maintenance?",
+		sent_transfer_tx_maintenance['outputs'][0]['public_keys'][0] == car_key)
+		
+		print("Was the mechanic shop the previous owner of maintenance?",
+		
+		fulfilled_transfer_tx_maintenance['inputs'][0]['owners_before'][0] == pub)
+		
+		print("What is the transaction ID for the transfer from mechanic shop to car?", sent_transfer_tx_maintenance['id'])
