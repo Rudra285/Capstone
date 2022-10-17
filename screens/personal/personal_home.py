@@ -14,9 +14,6 @@ from kivymd.uix.button import MDFlatButton
 class TransferPrompt(MDBoxLayout):
 	pass
 
-class RightButton(IRightBodyTouch, MDFlatButton):
-    adaptive_width = True
-
 class CarItemPersonal(MDCardSwipe):
 
 	##TODO connect the make/model variables to the make/model of the car being created
@@ -51,8 +48,8 @@ class CarItemPersonal(MDCardSwipe):
 		#print(self.ids.name.text)
         self.dialog.dismiss()
 
-    def test(self):
-        print("it works!")
+    def maintenance_screen(self, app):
+        app.root.current = 'car_maintenance'
 
 
 class PersonalHomeScreen(MDScreen):
