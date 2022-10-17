@@ -20,7 +20,8 @@
             id: name
             text: "MAKE"
             secondary_text: "MODEL"
-            _no_ripple_effect: True
+            ripple_effect: True
+            on_release: root.test()
 
             IconLeftWidget:
                 icon: "car"
@@ -56,24 +57,6 @@
                     MDList:
                         id: content
                         padding: 0
-
-            # MDSliverAppbar:
-            #     max_height: "260dp"
-
-            #     MDSliverAppbarHeader:
-
-            #         MDRelativeLayout:
-
-            #             FitImage:
-            #                 source: "assets/small_logo.png"
-
-            #     MDSliverAppbarContent:
-            #         id: content
-            #         orientation: "vertical"
-            #         padding: "12dp"
-            #         spacing: "12dp"
-            #         adaptive_height: True
-
 
         MDBottomNavigationItem:
             name: "maintenance"
