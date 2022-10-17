@@ -266,7 +266,7 @@ class BusinessHomeScreen(MDScreen):
 		pvt = user_data.get(email)[-1]
 		#TODO-need to find a way to retrieve maintainence
 		#WHATS INSIDE THE MAINTAINANCE ASSET?
-		#maintenance_asset = {
+		maintenance_asset = {
 			'data': {
 				'vehicle': {
 					'make': 'Lincoln',
