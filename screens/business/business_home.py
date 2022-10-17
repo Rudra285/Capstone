@@ -214,7 +214,7 @@ class BusinessHomeScreen(MDScreen):
 			check['owner'] == pub
 			if temp[-1]['operation'] == 'CREATE':
 				vehicle = temp[-1]['asset']
-			self.add_card(vehicle, temp[-1])	
+				self.add_card(vehicle, temp[-1])	
 
 	def on_start(self, *args):
 		pass
