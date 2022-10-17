@@ -5,12 +5,14 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.button import MDFlatButton
-# from bigchaindb_driver import BigchainDB
-# from bigchaindb_driver.crypto import generate_keypair
+from bigchaindb_driver import BigchainDB
+from bigchaindb_driver.crypto import generate_keypair
 import os
 import json
 from  kivymd.uix.card import MDCardSwipe
 
+class TransferPrompt(MDBoxLayout):
+	pass
 class CarItem(MDCardSwipe):
 
 	##TODO connect the make/model variables to the make/model of the car being created
@@ -23,37 +25,84 @@ class CarItem(MDCardSwipe):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.elevation = 3
-
-	def transfer_dialog(self):
+	
+	def transfer_dialog(self, fulfilled_creation_tx_car, current_email, home, *args):
 		if not self.dialog:
 			self.dialog = MDDialog(
                 title="Transfer Vehicle:",
                 type="custom",
-                content_cls=MDBoxLayout(
-                    MDTextField(
-                        hint_text="New Owners Email",
-                    ),
-                    MDTextField(
-                        hint_text="Your Password",
-                    ),
-                    orientation="vertical",
-                    spacing="12dp",
-                    size_hint_y=None,
-                    height="120dp",
-                ),
-				##TODO Figure out how to do the on_press bind with Cancel and Submit. 
-				##TODO must get the user input when SUBMIT is pressed
-				##TODO must exit the dialog when CANCEL is pressed
+                content_cls=TransferPrompt(),
                 buttons=[
                     MDFlatButton(
                         text="CANCEL",
+                        on_press = self.close_carlog
                     ),
                     MDFlatButton(
                         text="SUBMIT",
+                        on_press = lambda *args: self.transfer(fulfilled_creation_tx_car, current_email, home, *args)
                     ),
                 ],
             )
 		self.dialog.open()
+	def close_carlog(self, obj):
+		#print(self.ids.name.text)
+		self.dialog.dismiss()
+	def transfer(self, fulfilled_creation, current_email, home, *args):
+		car_key = generate_keypair()
+		bdb_root_url = 'https://test.ipdb.io'  # Use YOUR BigchainDB Root URL here
+		bdb = BigchainDB(bdb_root_url)
+		personal_path = os.path.dirname(os.path.abspath("personal.json")) + '/personal.json'
+		with open(personal_path, 'r') as p_users:
+			personal_users = json.load(p_users)
+		p_users.close()
+		email = self.dialog.content_cls.ids.recipient.text
+		dest = personal_users.get(email)
+		recipient_pub = dest[-2]
+		business_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
+		with open(business_path, 'r') as b_users:
+			business_users = json.load(b_users)
+		b_users.close()
+		info = business_users.get(current_email)
+		sender_pvt = info[-1]
+		
+		creation_tx = fulfilled_creation
+		asset_id = creation_tx['id']
+		transfer_asset = {
+			'id': asset_id,
+		}
+		output_index = 0
+		output = creation_tx['outputs'][output_index]
+		transfer_input = {
+			'fulfillment': output['condition']['details'],
+			'fulfills': {
+				'output_index': output_index,
+				'transaction_id': creation_tx['id']
+			},
+			'owners_before': output['public_keys']
+		}
+		
+		#prepare the transfer of car to joe
+		prepared_transfer = bdb.transactions.prepare(
+			operation='TRANSFER',
+			asset=transfer_asset,
+			inputs=transfer_input,
+			recipients=recipient_pub,
+			metadata = {'owner': recipient_pub}
+		)
+		
+		fulfilled_transfer = bdb.transactions.fulfill(
+			prepared_transfer,
+			private_keys=sender_pvt,
+		)
+		
+		#send the transfer of the car to joe on the bigchaindb network
+		sent_transfer = bdb.transactions.send_commit(fulfilled_transfer)
+		
+		print("Is " + email + " the owner of the car?", sent_transfer['outputs'][0]['public_keys'][0] == recipient_pub)
+		print("Was ford the previous owner of the car?", fulfilled_transfer['inputs'][0]['owners_before'][0] == info[-2])
+		print("What is the transaction ID for the transfer from ford to joe?", sent_transfer['id'])
+		home.remove_widget(self)
+		self.dialog.dismiss()
 	
     
 class BusinessHomeScreen(MDScreen):
@@ -75,9 +124,6 @@ class BusinessHomeScreen(MDScreen):
 	def __init__(self, **kwargs):
 		super(BusinessHomeScreen, self).__init__(**kwargs)
 		Clock.schedule_once(self.on_start)
-		
-	def onTransferVehicleClick(self):
-		pass
 
 	def onCreateVehicleClick(self):
 
@@ -94,8 +140,8 @@ class BusinessHomeScreen(MDScreen):
 		print(year)
 		vin = self.ids.create_car_vin.text
 		print(vin)
-		mileage = self.ids.create_car_mileage.text
-		print(mileage)
+		#mileage = self.ids.create_car_mileage.text
+		#print(mileage)
 		print(self.ids.name.text)
 		email = self.ids.name.text
 		json_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
@@ -142,7 +188,12 @@ class BusinessHomeScreen(MDScreen):
 		self.add_card(vehicle_asset, fulfilled_creation_tx_car)
     
 	def add_card(self, vehicle, fulfilled_creation_tx_car):
-		self.ids.content.add_widget(CarItem())
+		card = CarItem();
+		card.ids.name.text = vehicle['data']['vehicle']['make']
+		card.ids.name.secondary_text = vehicle['data']['vehicle']['model']
+		card.ids.transfer.on_press=lambda *args: card.transfer_dialog(fulfilled_creation_tx_car, self.ids.name.text, self.ids.content, *args)
+		
+		self.ids.content.add_widget(card)
     
 	def load(self):
     	#Load all vehicles owned by the business
@@ -170,10 +221,7 @@ class BusinessHomeScreen(MDScreen):
 
         #TODO IF any cars are owned determine how many, put that in a variable
         ##Example of 10 CarItem()'s being created
-		for i in range(20):
-			self.ids.content.add_widget(
-                CarItem()
-            )
+		
 
 	def clock_next(self, app):
 		Clock.schedule_once(self.next)
