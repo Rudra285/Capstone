@@ -1,8 +1,60 @@
+<CarItemPersonal>
+    size_hint_y: None
+    height: "86dp"
+    padding: "4dp"
+    radius: 12
+    ripple_behavior: True
+    type_swipe: "hand"
+
+    MDCardSwipeLayerBox:
+        padding: "8dp"
+
+        MDIconButton:
+            id: transfer_personal
+            icon: "transfer"
+            pos_hint: {"center_y": .5}
+
+    MDCardSwipeFrontBox:
+
+        TwoLineIconListItem:
+            id: name_personal
+            text: "MAKE"
+            secondary_text: "MODEL"
+            ripple_effect: True
+            #This will need to go to a new page that shows all maintenance performed on vehicle
+            on_release: root.test()
+
+            IconLeftWidget:
+                icon: "car"
+
+
 <PersonalHomeScreen>:
     name: 'personal_home_screen'
-    BoxLayout:
-        Label:
-            text: 'Personal Home Screen'
-        Button:
-            text: 'go to Business Create Account Screen'
-            on_release: app.root.current = 'business_create_account_screen'
+
+    MDBottomNavigation:
+
+        MDBottomNavigationItem:
+            name: "vehicles"
+            text: 'Vehicles Owned'
+            icon: 'car-search'
+
+            MDBoxLayout:
+                orientation: "vertical"
+
+                FitImage:
+                    source: "assets/small_logo.png"
+                    radius: root.radius
+                    size_hint_x: None
+                    width: root.height
+
+                MDScrollView:
+                    scroll_timeout: 100
+
+                    MDList:
+                        id: content_personal
+                        padding: 0
+
+        MDBottomNavigationItem:
+            text: 'Logout'
+            icon: 'logout'
+            on_tab_press: app.stop()
