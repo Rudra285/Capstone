@@ -48,8 +48,8 @@ class CarItem(MDCardSwipe):
 		#print(self.ids.name.text)
 		self.dialog.dismiss()
 
-	def test(self):
-		print("it works!")
+	def maintenance_screen(self, app):
+		app.root.current = 'car_maintenance'
 
 	def transfer(self, fulfilled_creation, current_email, home, *args):
 		car_key = generate_keypair()
