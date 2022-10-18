@@ -49,10 +49,9 @@ class CarItem(MDCardSwipe):
 		self.dialog.dismiss()
 
 	def maintenance_screen(self, app):
-		car_key = generate_keypair()
-		bdb_root_url = 'https://test.ipdb.io'
 		
 		#metadata query car VIN, and get the mainteinance asset
+		car_VIN = self.ids.name.tertiary_text
 		app.root.current = 'car_maintenance'
 
 	def transfer(self, fulfilled_creation, current_email, home, *args):
