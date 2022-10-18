@@ -6,6 +6,7 @@
 #: import BusinessCreateAccountScreen screens.business.business_create_account.BusinessCreateAccountScreen
 #: import BusinessHomeScreen screens.business.business_home.BusinessHomeScreen
 #: import StartupScreen screens.startup.StartupScreen
+#: import CarMaintenanceScreen screens.car_maintenance.CarMaintenanceScreen
 
 #  include the kv files for the other Screens
 #: include templates/personal/personal_login.kv
@@ -15,6 +16,7 @@
 #: include templates/business/business_create_account.kv
 #: include templates/business/business_home.kv
 #: include templates/startup_screen.kv
+#: include templates/car_maintenance.kv
 
 
 WindowManager:
@@ -32,3 +34,5 @@ WindowManager:
         id: bhw
     PersonalHomeScreen:
         id: phw
+    CarMaintenanceScreen:
+        id: cmw

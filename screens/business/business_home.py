@@ -13,13 +13,12 @@ from  kivymd.uix.card import MDCardSwipe
 
 class TransferPrompt(MDBoxLayout):
 	pass
+
 class CarItem(MDCardSwipe):
 
 	##TODO connect the make/model variables to the make/model of the car being created
 	make = StringProperty()
 	model = StringProperty()
-
-
 	dialog = None
 
 	def __init__(self, *args, **kwargs):
@@ -44,9 +43,14 @@ class CarItem(MDCardSwipe):
                 ],
             )
 		self.dialog.open()
+		
 	def close_carlog(self, obj):
 		#print(self.ids.name.text)
 		self.dialog.dismiss()
+
+	def maintenance_screen(self, app):
+		app.root.current = 'car_maintenance'
+
 	def transfer(self, fulfilled_creation, current_email, home, *args):
 		car_key = generate_keypair()
 		bdb_root_url = 'https://test.ipdb.io'  # Use YOUR BigchainDB Root URL here
