@@ -9,14 +9,13 @@ from bigchaindb_driver import BigchainDB
 from bigchaindb_driver.crypto import generate_keypair
 import os
 import json
+from datetime import datetime
 from  kivymd.uix.card import MDCardSwipe
 
 class TransferPrompt(MDBoxLayout):
 	pass
 
 class CarItem(MDCardSwipe):
-
-	##TODO connect the make/model variables to the make/model of the car being created
 	make = StringProperty()
 	model = StringProperty()
 	dialog = None
@@ -52,7 +51,9 @@ class CarItem(MDCardSwipe):
 		
 		#metadata query car VIN, and get the mainteinance asset
 		car_VIN = self.ids.name.tertiary_text
+		app.root.get_screen('car_maintenance').load(car_VIN)
 		app.root.current = 'car_maintenance'
+		
 
 	def transfer(self, fulfilled_creation, current_email, home, *args):
 		car_key = generate_keypair()
@@ -108,6 +109,7 @@ class CarItem(MDCardSwipe):
 		print("Is " + email + " the owner of the car?", sent_transfer['outputs'][0]['public_keys'][0] == recipient_pub)
 		print("Was ford the previous owner of the car?", fulfilled_transfer['inputs'][0]['owners_before'][0] == info[-2])
 		print("What is the transaction ID for the transfer from ford to joe?", sent_transfer['id'])
+		
 		home.remove_widget(self)
 		self.dialog.dismiss()
 	
@@ -133,23 +135,15 @@ class BusinessHomeScreen(MDScreen):
 		Clock.schedule_once(self.on_start)
 
 	def onCreateVehicleClick(self):
-
-		print("Create Car Button Clicked")
 		car_key = generate_keypair()
-		bdb_root_url = 'https://test.ipdb.io'  # Use YOUR BigchainDB Root URL here
+		bdb_root_url = 'https://test.ipdb.io'
 		bdb = BigchainDB(bdb_root_url)
 
 		make = self.ids.create_car_make.text
-		print(make)
 		model = self.ids.create_car_model.text
-		print(model)
 		year = self.ids.create_car_year.text
-		print(year)
 		vin = self.ids.create_car_vin.text
-		print(vin)
 		#mileage = self.ids.create_car_mileage.text
-		#print(mileage)
-		print(self.ids.name.text)
 		email = self.ids.name.text
 		json_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
 		with open(json_path, 'r') as b_users:
@@ -157,7 +151,6 @@ class BusinessHomeScreen(MDScreen):
 		b_users.close()
 		
 		info = user_data.get(email)
-		print(info)
 		recipient_pub = info[-2] #Public key location
 		
 		#Make a car asset that is brand new
@@ -192,6 +185,7 @@ class BusinessHomeScreen(MDScreen):
 		print(fulfilled_creation_tx_car)
 		print("What is the transaction ID for the creation of the car?", txid_car)
 		print("Is ford the owner of the car?", sent_creation_tx_car['outputs'][0]['public_keys'][0] == recipient_pub)
+		
 		self.add_card(vehicle_asset, fulfilled_creation_tx_car)
     
 	def add_card(self, vehicle, fulfilled_creation_tx_car):
@@ -204,8 +198,8 @@ class BusinessHomeScreen(MDScreen):
 		self.ids.content.add_widget(card)
     
 	def load(self):
-    	#Load all vehicles owned by the business
-		bdb_root_url = 'https://test.ipdb.io'  # Use YOUR BigchainDB Root URL here
+    		#Load all vehicles owned by the business
+		bdb_root_url = 'https://test.ipdb.io'
 		bdb = BigchainDB(bdb_root_url)
 		json_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
 		with open(json_path, 'r') as b_users:
@@ -251,19 +245,34 @@ class BusinessHomeScreen(MDScreen):
 		bdb_root_url = 'https://test.ipdb.io'  # Use YOUR BigchainDB Root URL here
 		bdb = BigchainDB(bdb_root_url)
 		
+		#Get date and time for maintenance creation
+		dateTimeObj = datetime.now()
+		month = str(dateTimeObj.month)
+		day =  str(dateTimeObj.day)
+		year = str(dateTimeObj.year)
+		hour = str(dateTimeObj.hour)
+		minute = str(dateTimeObj.minute)
+		seconds = str(dateTimeObj.second)
+		if(dateTimeObj.second < 10):
+			seconds = '0' + str(dateTimeObj.second)
+		if(dateTimeObj.minute < 10):
+			minute = '0' + str(dateTimeObj.minute)
+		if(dateTimeObj.hour > 12):
+			hour = str(dateTimeObj.hour - 12)
+		if(dateTimeObj.hour >= 12):
+			dateStr = month + '/' + day + '/' + year + '\n' + hour + ':' + minute + ':' + seconds + ' PM'
+		else:
+			dateStr = month + '/' + day + '/' + year + '\n' + hour + ':' + minute + ':' + seconds + ' AM'
+		
 		customer_vin = self.ids.vin.text
-		print(customer_vin)
 		customer_mileage = self.ids.mileage.text
-		print(customer_mileage)
 		maint_data = self.ids.maint_performed.text
-		print(maint_data)
 		
 		temp = bdb.assets.get(search = customer_vin)[0]
-		print(temp)
 		
 		info = bdb.transactions.get(asset_id = temp['id'])
 		car_key = info[0]['inputs'][0]['owners_before'][0]
-		print(car_key)
+		print('car key:', car_key)
 		
 		json_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
 		with open(json_path, 'r') as b_users:
@@ -272,7 +281,6 @@ class BusinessHomeScreen(MDScreen):
 		email = self.ids.name.text
 		pub = user_data.get(email)[-2]
 		pvt = user_data.get(email)[-1]
-		#TODO-need to find a way to retrieve maintainence
 		#WHATS INSIDE THE MAINTAINANCE ASSET?
 		maintenance_asset = {
 			'data': {
@@ -290,8 +298,8 @@ class BusinessHomeScreen(MDScreen):
 		prepared_creation_tx_maintenance = bdb.transactions.prepare(
 		operation='CREATE',
 		signers=pub,
-		asset=maintenance_asset,
-		metadata= {'maintenance': maint_data, 'car_vin': customer_vin}
+		#asset=maintenance_asset,
+		metadata= {'maintenance': maint_data, 'car_vin': customer_vin, 'date': dateStr}
 		)
 		
 		#fulfill the creation of the maintenance owned by the mechanic shop
