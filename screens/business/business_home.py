@@ -49,6 +49,10 @@ class CarItem(MDCardSwipe):
 		self.dialog.dismiss()
 
 	def maintenance_screen(self, app):
+		car_key = generate_keypair()
+		bdb_root_url = 'https://test.ipdb.io'
+		
+		#metadata query car VIN, and get the mainteinance asset
 		app.root.current = 'car_maintenance'
 
 	def transfer(self, fulfilled_creation, current_email, home, *args):
@@ -195,6 +199,7 @@ class BusinessHomeScreen(MDScreen):
 		card = CarItem();
 		card.ids.name.text = vehicle['data']['vehicle']['make']
 		card.ids.name.secondary_text = vehicle['data']['vehicle']['model']
+		card.ids.name.tertiary_text = vehicle['data']['vehicle']['VIN']
 		card.ids.transfer.on_press=lambda *args: card.transfer_dialog(fulfilled_creation_tx_car, self.ids.name.text, self.ids.content, *args)
 		
 		self.ids.content.add_widget(card)
@@ -273,7 +278,7 @@ class BusinessHomeScreen(MDScreen):
 		maintenance_asset = {
 			'data': {
 				'vehicle': {
-					'make': 'Lincoln',
+					'business': 'Ford',
 					'model': 'MKX',
 					'year': '2008',
 					'VIN': customer_vin,
@@ -287,7 +292,7 @@ class BusinessHomeScreen(MDScreen):
 		operation='CREATE',
 		signers=pub,
 		asset=maintenance_asset,
-		metadata= {'maintenance': maint_data, 'car_id': temp['id']}
+		metadata= {'maintenance': maint_data, 'car_vin': customer_vin}
 		)
 		
 		#fulfill the creation of the maintenance owned by the mechanic shop
