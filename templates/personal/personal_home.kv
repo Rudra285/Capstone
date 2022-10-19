@@ -16,12 +16,9 @@
 
     MDCardSwipeFrontBox:
 
-        TwoLineIconListItem:
+        ThreeLineIconListItem:
             id: name_personal
-            text: "MAKE"
-            secondary_text: "MODEL"
             ripple_effect: True
-            #This will need to go to a new page that shows all maintenance performed on vehicle
             on_release: root.maintenance_screen(app)
 
             IconLeftWidget:
@@ -30,6 +27,11 @@
 
 <PersonalHomeScreen>:
     name: 'personal_home_screen'
+    
+    MDBoxLayout:
+        MDLabel:
+     	   id: name
+     	   text: ''
 
     MDBottomNavigation:
 
@@ -58,3 +60,13 @@
             text: 'Logout'
             icon: 'logout'
             on_tab_press: app.stop()
+
+<TransferPersonalPrompt>
+    orientation: "vertical"
+    spacing: "12dp"
+    size_hint_y: None
+    height: "60dp"
+
+    MDTextField:
+    	id: recipient
+        hint_text: "New Owners Email"
