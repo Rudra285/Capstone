@@ -37,6 +37,8 @@ class PersonalLoginScreen(MDScreen):
             check = checklist[0]
             if check == password:
                 print('verified')
+                root.manager.get_screen('personal_home_screen').ids.name.text = email
+                root.manager.get_screen('personal_home_screen').load()
                 app.root.current = 'personal_home_screen'
             else:
                 print('Account DNE')
