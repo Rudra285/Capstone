@@ -56,8 +56,7 @@ class CarItem(MDCardSwipe):
 		
 
 	def transfer(self, fulfilled_creation, current_email, home, *args):
-		car_key = generate_keypair()
-		bdb_root_url = 'https://test.ipdb.io'  # Use YOUR BigchainDB Root URL here
+		bdb_root_url = 'https://test.ipdb.io'
 		bdb = BigchainDB(bdb_root_url)
 		personal_path = os.path.dirname(os.path.abspath("personal.json")) + '/personal.json'
 		with open(personal_path, 'r') as p_users:
@@ -74,7 +73,10 @@ class CarItem(MDCardSwipe):
 		sender_pvt = info[-1]
 		
 		creation_tx = fulfilled_creation
-		asset_id = creation_tx['id']
+		if(creation_tx['operation'] == 'CREATE'):
+			asset_id = creation_tx['id']
+		elif(creation_tx['operation'] == 'TRANSFER'):
+			asset_id = creation_tx['asset']['id']
 		transfer_asset = {
 			'id': asset_id,
 		}
@@ -89,7 +91,7 @@ class CarItem(MDCardSwipe):
 			'owners_before': output['public_keys']
 		}
 		
-		#prepare the transfer of car to joe
+		#prepare the transfer of car
 		prepared_transfer = bdb.transactions.prepare(
 			operation='TRANSFER',
 			asset=transfer_asset,
@@ -216,7 +218,13 @@ class BusinessHomeScreen(MDScreen):
 			check['owner'] == pub
 			if temp[-1]['operation'] == 'CREATE':
 				vehicle = temp[-1]['asset']
-				self.add_card(vehicle, temp[-1])	
+				self.add_card(vehicle, temp[-1])
+			elif temp[-1]['operation'] == 'TRANSFER':
+				#NOTE: THERE is an issue with loading 'TRANSFER'
+				double_check = bdb.transactions.get(asset_id=temp[-1]['asset']['id'])
+				vehicle = double_check[0]['asset']
+				self.add_card(vehicle, temp[-1])
+				
 
 	def on_start(self, *args):
 		pass
