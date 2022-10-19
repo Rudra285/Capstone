@@ -200,6 +200,7 @@ class BusinessHomeScreen(MDScreen):
 		self.ids.content.add_widget(card)
     
 	def load(self):
+		already_in = []
     		#Load all vehicles owned by the business
 		bdb_root_url = 'https://test.ipdb.io'
 		bdb = BigchainDB(bdb_root_url)
@@ -210,20 +211,23 @@ class BusinessHomeScreen(MDScreen):
 		email = self.ids.name.text
 		pub = user_data.get(email)[-2]
 		data_list = bdb.metadata.get(search = pub)
-		print(data_list)
+		#print(data_list)
 		for i in data_list:
 			temp = bdb.transactions.get(asset_id=i['id'])
-			print(temp)
-			check = temp[-1]['metadata']
-			check['owner'] == pub
-			if temp[-1]['operation'] == 'CREATE':
-				vehicle = temp[-1]['asset']
-				self.add_card(vehicle, temp[-1])
-			elif temp[-1]['operation'] == 'TRANSFER':
-				#NOTE: THERE is an issue with loading 'TRANSFER'
-				double_check = bdb.transactions.get(asset_id=temp[-1]['asset']['id'])
-				vehicle = double_check[0]['asset']
-				self.add_card(vehicle, temp[-1])
+			#print("FIRST:",temp)
+			#print("ALREADY_IN:",already_in)
+			if temp[-1]['metadata']['owner'] == pub:
+				if temp[-1]['operation'] == 'CREATE':
+					vehicle = temp[-1]['asset']
+					self.add_card(vehicle, temp[-1])
+				elif temp[-1]['operation'] == 'TRANSFER' and (temp[-1]['asset']['id'] not in already_in):
+					check = bdb.transactions.get(asset_id=temp[-1]['asset']['id'])
+				
+					#print("SECOND:", check)
+					if(check[-1]['metadata']['owner'] == pub):
+						already_in.append(check[-1]['asset']['id'])
+						vehicle = check[0]['asset']
+						self.add_card(vehicle, temp[-1])
 				
 
 	def on_start(self, *args):
