@@ -48,7 +48,7 @@ class CarItemPersonal(MDCardSwipe):
 
     def maintenance_screen(self, app):
     	#metadata query car VIN, and get the mainteinance asset
-    	car_VIN = self.ids.name.tertiary_text
+    	car_VIN = self.ids.name_personal.tertiary_text
     	app.root.get_screen('car_maintenance').load(car_VIN)
     	app.root.current = 'car_maintenance'
     
