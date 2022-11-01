@@ -2,7 +2,8 @@ from kivymd.uix.screen import MDScreen
 from kivy.properties import StringProperty
 from bigchaindb_driver import BigchainDB
 from bigchaindb_driver.crypto import generate_keypair
-import json
+import requests
+import hashlib
 import os
 
 class BusinessCreateAccountScreen(MDScreen):
@@ -71,60 +72,68 @@ class BusinessCreateAccountScreen(MDScreen):
 		
         	#Generate Keypair
 		user_key = generate_keypair()
-    	
-    		#Get user data from JSON into a dictionary
-		json_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
-		with open(json_path, 'r') as b_users:
-			user_data = json.load(b_users)
-		b_users.close()
-    	
-    		#Add new user data to dictionary
-		user_data[email] = []
-		user_data[email].append(password)
-		user_data[email].append(name)
-		user_data[email].append(user_key.public_key)
-		user_data[email].append(user_key.private_key)
-    	
-    		#Write updated user data to JSON file
-		with open(json_path, 'w') as b_users:
-			json.dump(user_data, b_users)
-		b_users.close()
-    	
-    	#Create business dealership
-		dealership = {
-    		'data': {
-    			'Dealership': {
-    				'Name': name,
-    				'Street': street,
-    				'Country': country,
-    				'Province': prov,
-    				'City': city,
-    				'Postal Code': postal,
-    				'Phone': phone
-    			}
-    		}
-    	}
-    	
-    	#Prepare the creation of the dealership
-		prepared_creation_tx_dealership = bdb.transactions.prepare(
-    		operation='CREATE',
-    		signers=user_key.public_key,
-    		asset=dealership,
-    	)
-    	
-    	#Fulfill the creation of the dealership by signing with dealer private key
-		fulfilled_creation_tx_dealership = bdb.transactions.fulfill(
-    		prepared_creation_tx_dealership,
-    		private_keys=user_key.private_key
-    	)
-    	
-    	#send the creation of the dealership to bigchaindb
-		sent_creation_tx_dealership = bdb.transactions.send_commit(fulfilled_creation_tx_dealership)
-    	
-    	#get the txid of the dealership creation
-		txid_dealership = fulfilled_creation_tx_dealership['id']
-		print("What is the transaction ID for the creation of the dealership?", txid_dealership)
-		print("Dealership:", dealership)
+		
+		#POST user data to "users" database
+		URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
+		
+		user = requests.get(url = URL, params = {'email': email})
+		data = user.json()
+		
+		if len(data['Items']) == 0:
+			#Send POST request
+			salt = os.urandom(32) # A new salt for this user
+			#Encode password and add salt
+			encoded_passwd = password.encode('utf-8') + salt
+			#Hash password
+			hashed_passwd = hashlib.pbkdf2_hmac('sha256', encoded_passwd, salt, 100000)
+			
+			#Create entry
+			new_user = {
+				'email': email,
+				'salt': salt.hex(),
+				'password': hashed_passwd.hex(),
+				'publicKey': user_key.public_key,
+				'account': 'B'
+			}
+			
+			post = requests.post(url = URL, json = new_user)
+			#Create business dealership
+			dealership = {
+				'data': {
+					'Dealership': {
+						'Name': name,
+						'Street': street,
+						'Country': country,
+						'Province': prov,
+						'City': city,
+						'Postal Code': postal,
+						'Phone': phone
+					}
+				}
+			}
+			
+			#Prepare the creation of the dealership
+			prepared_creation_tx_dealership = bdb.transactions.prepare(
+				operation='CREATE',
+				signers=user_key.public_key,
+				asset=dealership,
+			)
+			
+			#Fulfill the creation of the dealership by signing with dealer private key
+			fulfilled_creation_tx_dealership = bdb.transactions.fulfill(
+				prepared_creation_tx_dealership,
+				private_keys=user_key.private_key
+			)
+			
+			#send the creation of the dealership to bigchaindb
+			sent_creation_tx_dealership = bdb.transactions.send_commit(fulfilled_creation_tx_dealership)
+			
+			#get the txid of the dealership creation
+			txid_dealership = fulfilled_creation_tx_dealership['id']
+			print("What is the transaction ID for the creation of the dealership?", txid_dealership)
+			print("Dealership:", dealership)
+		else:
+			print('Account already exists!')
 
 	def goBack(self, app):
             app.root.current = 'business_login_screen'
