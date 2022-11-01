@@ -1,7 +1,7 @@
 from kivymd.uix.screen import MDScreen
 from kivy.clock import Clock
 import os
-import json
+import requests
 from kivymd.uix.dialog import MDDialog
 from kivy.properties import StringProperty
 from  kivymd.uix.card import MDCardSwipe
@@ -128,16 +128,16 @@ class PersonalHomeScreen(MDScreen):
         
     def load(self):
     	#Load all vehicles owned by the business
-    	#NOTE: THERE is an issue with loading 'TRANSFER'
     	already_in = []
     	bdb_root_url = 'https://test.ipdb.io'
     	bdb = BigchainDB(bdb_root_url)
-    	json_path = os.path.dirname(os.path.abspath("personal.json")) + '/personal.json'
-    	with open(json_path, 'r') as p_users:
-    		user_data = json.load(p_users)
-    	p_users.close()
-    	email = self.ids.name.text
-    	pub = user_data.get(email)[-2]
+    	URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
+    	
+    	email = self.ids.email.text
+    	user = requests.get(url = URL, params = {'email': email})
+    	data = user.json()
+    	
+    	pub = data['Items'][0]['publicKey']
     	data_list = bdb.metadata.get(search = pub)
     	#print(data_list)
     	for i in data_list:
