@@ -1,8 +1,9 @@
 from kivymd.uix.screen import MDScreen
 from kivy.properties import StringProperty
 from bigchaindb_driver.crypto import generate_keypair
-import json
+import hashlib
 import os
+import requests
 
 class PersonalCreateAccountScreen(MDScreen):
     email_prompt = StringProperty("Account Email")
@@ -30,23 +31,32 @@ class PersonalCreateAccountScreen(MDScreen):
         #Generate Keypair
         user_key = generate_keypair()
         
-        #Get user data from JSON into a dictionary
-        json_path = os.path.dirname(os.path.abspath("personal.json")) + '/personal.json'
-        with open(json_path, 'r') as p_users:
-            user_data = json.load(p_users)
-        p_users.close()
+        #POST user data to "users" database
+        URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
         
-        #Add new user data to dictionary
-        user_data[email] = []
-        user_data[email].append(password)
-        user_data[email].append(name)
-        user_data[email].append(user_key.public_key)
-        user_data[email].append(user_key.private_key)
+        user = requests.get(url = URL, params = {'email': email})
+        data = user.json()
         
-        #Write updated user data to JSON file
-        with open(json_path, 'w') as p_users:
-            json.dump(user_data, p_users)
-        p_users.close()
+        if len(data['Items']) == 0:
+        	#Send POST
+        	salt = os.urandom(32) # A new salt for this user
+        	#Encode password and add salt
+        	encoded_passwd = password.encode('utf-8') + salt
+        	#Hash password
+        	hashed_passwd = hashlib.pbkdf2_hmac('sha256', encoded_passwd, salt, 100000)
+        	
+        	#Create entry
+        	new_user = {
+        		'email': email,
+        		'salt': salt.hex(),
+        		'password': hashed_passwd.hex(),
+        		'publicKey': user_key.public_key,
+        		'account': 'P'
+        	}
+        	
+        	post = requests.post(url = URL, json = new_user)
+        else:
+        	print('Account already exists!')
 
     def goBack(self, app):
         app.root.current = 'personal_login_screen'

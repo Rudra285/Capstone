@@ -1,7 +1,8 @@
 from kivymd.uix.screen import MDScreen
 from kivy.properties import StringProperty
 import os
-import json
+import requests
+import hashlib
 
 class PersonalLoginScreen(MDScreen):
 
@@ -23,25 +24,28 @@ class PersonalLoginScreen(MDScreen):
         password = self.ids.personal_login_password.text
         print(password)
         
-        #Check JSON file for existing account
-        json_path = os.path.dirname(os.path.abspath("personal.json")) + '/personal.json'
-        with open(json_path, 'r') as p_users:
-            user_data = json.load(p_users)
-        p_users.close()
+        #check GET request for existing account
+        URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
         
-        #Check email with corresponding password
-        checklist = user_data.get(email)
-        if checklist == None:
-            print('No value')
+        user = requests.get(url = URL, params = {'email': email})
+        data = user.json()
+        
+        if len(data['Items']) == 0:
+        	print('Account does not exist!')
         else:
-            check = checklist[0]
-            if check == password:
-                print('verified')
-                root.manager.get_screen('personal_home_screen').ids.name.text = email
-                root.manager.get_screen('personal_home_screen').load()
-                app.root.current = 'personal_home_screen'
-            else:
-                print('Account DNE')
+        	if data['Items'][0]['account']['S'] == 'P':
+        		 salt = bytes.fromhex(data['Items'][0]['salt']['B'])
+        		 encoded_input = password.encode('utf-8') + salt
+        		 hashed_input = hashlib.pbkdf2_hmac('sha256', encoded_input, salt, 100000)
+        		 check = hashed_input.hex()
+        		 
+        		 if data['Items'][0]['password']['B'] == check:
+        		 	root.manager.get_screen('personal_home_screen').ids.email.text = email
+        		 	root.manager.get_screen('personal_home_screen').load()
+        		 	app.root.current = 'personal_home_screen'
+        		 	print('Login Success')
+        		 else:
+        		 	print('Password does not match!')
 
     def goBack(self, app):
         app.root.current = 'startup_screen'

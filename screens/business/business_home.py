@@ -8,7 +8,7 @@ from kivymd.uix.button import MDFlatButton
 from bigchaindb_driver import BigchainDB
 from bigchaindb_driver.crypto import generate_keypair
 import os
-import json
+import requests
 from datetime import datetime
 from  kivymd.uix.card import MDCardSwipe
 
@@ -146,7 +146,7 @@ class BusinessHomeScreen(MDScreen):
 		year = self.ids.create_car_year.text
 		vin = self.ids.create_car_vin.text
 		#mileage = self.ids.create_car_mileage.text
-		email = self.ids.name.text
+		email = self.ids.email.text
 		json_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
 		with open(json_path, 'r') as b_users:
 			user_data = json.load(b_users)
@@ -204,12 +204,13 @@ class BusinessHomeScreen(MDScreen):
     		#Load all vehicles owned by the business
 		bdb_root_url = 'https://test.ipdb.io'
 		bdb = BigchainDB(bdb_root_url)
-		json_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
-		with open(json_path, 'r') as b_users:
-			user_data = json.load(b_users)
-		b_users.close()
-		email = self.ids.name.text
-		pub = user_data.get(email)[-2]
+		URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
+		
+		email = self.ids.email.text
+		user = requests.get(url = URL, params = {'email': email})
+		data = user.json()
+		
+		pub = data['Items'][0]['publicKey']
 		data_list = bdb.metadata.get(search = pub)
 		#print(data_list)
 		for i in data_list:
