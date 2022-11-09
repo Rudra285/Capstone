@@ -4,7 +4,9 @@ from bigchaindb_driver import BigchainDB
 from bigchaindb_driver.crypto import generate_keypair
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
+from kivymd.uix.button import MDIconButton
 from kivymd.uix.boxlayout import MDBoxLayout
+import pyclip
 import requests
 import hashlib
 import os
@@ -149,6 +151,10 @@ class BusinessCreateAccountScreen(MDScreen):
 					type = "custom",
 					content_cls = prompt,
 					buttons = [
+						MDIconButton(
+							icon = "content-copy",
+							on_press = self.copy_clip
+						),
 						MDFlatButton(
 							text = "OK",
 							on_press = self.close_key
@@ -161,6 +167,9 @@ class BusinessCreateAccountScreen(MDScreen):
 			
 	def close_key(self, obj):
 		self.dialog.dismiss()
+		
+	def copy_clip(self, obj):
+		pyclip.copy(self.dialog.content_cls.ids.key.text)
 
 	def goBack(self, app):
             app.root.current = 'business_login_screen'
