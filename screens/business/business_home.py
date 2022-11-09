@@ -44,7 +44,6 @@ class CarItem(MDCardSwipe):
 		self.dialog.open()
 		
 	def close_carlog(self, obj):
-		#print(self.ids.name.text)
 		self.dialog.dismiss()
 
 	def maintenance_screen(self, app):
@@ -58,19 +57,14 @@ class CarItem(MDCardSwipe):
 	def transfer(self, fulfilled_creation, current_email, home, *args):
 		bdb_root_url = 'https://test.ipdb.io'
 		bdb = BigchainDB(bdb_root_url)
-		personal_path = os.path.dirname(os.path.abspath("personal.json")) + '/personal.json'
-		with open(personal_path, 'r') as p_users:
-			personal_users = json.load(p_users)
-		p_users.close()
+		URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
 		email = self.dialog.content_cls.ids.recipient.text
-		dest = personal_users.get(email)
-		recipient_pub = dest[-2]
-		business_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
-		with open(business_path, 'r') as b_users:
-			business_users = json.load(b_users)
-		b_users.close()
-		info = business_users.get(current_email)
-		sender_pvt = info[-1]
+		user = requests.get(url = URL, params = {'email': email})
+		dest_data = user.json()
+		
+		recipient_pub = dest_data['Items'][0]["publicKey"]["S"]
+		
+		sender_pvt = self.dialog.content_cls.ids.key.text
 		
 		creation_tx = fulfilled_creation
 		if(creation_tx['operation'] == 'CREATE'):
@@ -108,10 +102,6 @@ class CarItem(MDCardSwipe):
 		#send the transfer of the car to joe on the bigchaindb network
 		sent_transfer = bdb.transactions.send_commit(fulfilled_transfer)
 		
-		print("Is " + email + " the owner of the car?", sent_transfer['outputs'][0]['public_keys'][0] == recipient_pub)
-		print("Was ford the previous owner of the car?", fulfilled_transfer['inputs'][0]['owners_before'][0] == info[-2])
-		print("What is the transaction ID for the transfer from ford to joe?", sent_transfer['id'])
-		
 		home.remove_widget(self)
 		self.dialog.dismiss()
 	
@@ -145,15 +135,12 @@ class BusinessHomeScreen(MDScreen):
 		model = self.ids.create_car_model.text
 		year = self.ids.create_car_year.text
 		vin = self.ids.create_car_vin.text
-		#mileage = self.ids.create_car_mileage.text
 		email = self.ids.email.text
-		json_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
-		with open(json_path, 'r') as b_users:
-			user_data = json.load(b_users)
-		b_users.close()
+		URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
 		
-		info = user_data.get(email)
-		recipient_pub = info[-2] #Public key location
+		user = requests.get(url = URL, params = {'email': email})
+		data = user.json()
+		recipient_pub = data['Items'][0]["publicKey"]["S"]
 		
 		#Make a car asset that is brand new
 		vehicle_asset = {
@@ -167,7 +154,7 @@ class BusinessHomeScreen(MDScreen):
     				}
     			}
     		}
-		print(vehicle_asset['data']['vehicle']['make'], vehicle_asset['data']['vehicle']['model'], vehicle_asset['data']['vehicle']['year'], vehicle_asset['data']['vehicle']['VIN'])
+
 		prepared_creation_tx_car = bdb.transactions.prepare(
     		operation='CREATE',
     		signers=car_key.public_key,
@@ -184,9 +171,7 @@ class BusinessHomeScreen(MDScreen):
 		sent_creation_tx_car = bdb.transactions.send_commit(fulfilled_creation_tx_car)
     	#get the txid of the car creation
 		txid_car = fulfilled_creation_tx_car['id']
-		print(fulfilled_creation_tx_car)
-		print("What is the transaction ID for the creation of the car?", txid_car)
-		print("Is ford the owner of the car?", sent_creation_tx_car['outputs'][0]['public_keys'][0] == recipient_pub)
+		
 		
 		self.add_card(vehicle_asset, fulfilled_creation_tx_car)
     
@@ -195,12 +180,13 @@ class BusinessHomeScreen(MDScreen):
 		card.ids.name.text = vehicle['data']['vehicle']['make']
 		card.ids.name.secondary_text = vehicle['data']['vehicle']['model']
 		card.ids.name.tertiary_text = vehicle['data']['vehicle']['VIN']
-		card.ids.transfer.on_press=lambda *args: card.transfer_dialog(fulfilled_creation_tx_car, self.ids.name.text, self.ids.content, *args)
+		card.ids.transfer.on_press=lambda *args: card.transfer_dialog(fulfilled_creation_tx_car, self.ids.email.text, self.ids.content, *args)
 		
 		self.ids.content.add_widget(card)
     
 	def load(self):
 		already_in = []
+		
     		#Load all vehicles owned by the business
 		bdb_root_url = 'https://test.ipdb.io'
 		bdb = BigchainDB(bdb_root_url)
@@ -210,13 +196,12 @@ class BusinessHomeScreen(MDScreen):
 		user = requests.get(url = URL, params = {'email': email})
 		data = user.json()
 		
-		pub = data['Items'][0]['publicKey']
+		pub = data['Items'][0]['publicKey']["S"]
 		data_list = bdb.metadata.get(search = pub)
-		#print(data_list)
+
 		for i in data_list:
 			temp = bdb.transactions.get(asset_id=i['id'])
-			#print("FIRST:",temp)
-			#print("ALREADY_IN:",already_in)
+
 			if temp[-1]['metadata']['owner'] == pub:
 				if temp[-1]['operation'] == 'CREATE':
 					vehicle = temp[-1]['asset']
@@ -224,7 +209,7 @@ class BusinessHomeScreen(MDScreen):
 				elif temp[-1]['operation'] == 'TRANSFER' and (temp[-1]['asset']['id'] not in already_in):
 					check = bdb.transactions.get(asset_id=temp[-1]['asset']['id'])
 				
-					#print("SECOND:", check)
+					
 					if(check[-1]['metadata']['owner'] == pub):
 						already_in.append(check[-1]['asset']['id'])
 						vehicle = check[0]['asset']
@@ -285,15 +270,16 @@ class BusinessHomeScreen(MDScreen):
 		
 		info = bdb.transactions.get(asset_id = temp['id'])
 		car_key = info[0]['inputs'][0]['owners_before'][0]
-		print('car key:', car_key)
 		
-		json_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
-		with open(json_path, 'r') as b_users:
-			user_data = json.load(b_users)
-		b_users.close()
-		email = self.ids.name.text
-		pub = user_data.get(email)[-2]
-		pvt = user_data.get(email)[-1]
+		URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
+		
+		email = self.ids.email.text
+		user = requests.get(url = URL, params = {'email': email})
+		data = user.json()
+		
+		pub = data['Items'][0]['publicKey']["S"]
+		
+		pvt = self.ids.user_key.text
 		#WHATS INSIDE THE MAINTAINANCE ASSET?
 		maintenance_asset = {
 			'data': {
@@ -326,7 +312,6 @@ class BusinessHomeScreen(MDScreen):
 		
 		#get the txid of the maintenance creation
 		txid_maintenance = fulfilled_creation_tx_maintenance['id']
-		print("What is the transaction ID for the creation of the maintenance?", txid_maintenance)
 		
 		creation_tx_maintenance = fulfilled_creation_tx_maintenance
 		
@@ -361,12 +346,3 @@ class BusinessHomeScreen(MDScreen):
 		)
 		
 		sent_transfer_tx_maintenance = bdb.transactions.send_commit(fulfilled_transfer_tx_maintenance)
-		
-		print("Is car the owner of maintenance?",
-		sent_transfer_tx_maintenance['outputs'][0]['public_keys'][0] == car_key)
-		
-		print("Was the mechanic shop the previous owner of maintenance?",
-		
-		fulfilled_transfer_tx_maintenance['inputs'][0]['owners_before'][0] == pub)
-		
-		print("What is the transaction ID for the transfer from mechanic shop to car?", sent_transfer_tx_maintenance['id'])

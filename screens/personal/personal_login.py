@@ -14,7 +14,6 @@ class PersonalLoginScreen(MDScreen):
 
 
     def loginButtonClicked(self, root, app):
-        print("Login Button Clicked")
 
         #Take the input for the email
         email = self.ids.personal_login_email.text

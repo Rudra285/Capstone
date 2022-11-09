@@ -30,8 +30,7 @@
 
     MDBoxLayout:
         MDLabel:
-     	   id: email
-     	   text: ''    
+     	   id: email    
 
     MDBottomNavigation:
 
@@ -100,6 +99,12 @@
                                 multiline: True
                                 size_hint_x: .8
                                 pos_hint: {"center_x": .5, "center_y": .48}
+                                
+                            MDTextField:
+                                id: user_key
+                                hint_text: "Your Private Key"
+                                size_hint_x: .8
+                                pos_hint: {"center_x": .5, "center_y": .36}
 
                             MDRaisedButton:
                                 text: "PREVIOUS"
@@ -205,14 +210,6 @@
                         icon_left: "cellphone"
                         size_hint_x: .6
                         pos_hint: {"center_x": .5}
-                        
-                    #MDTextField:
-                    #    id: create_car_mileage
-                    #    hint_text: root.mileage_prompt
-                    #    helper_text_mode: "persistent"
-                    #    icon_left: "google-street-view"
-                    #    size_hint_x: .6
-                    #    pos_hint: {"center_x": .5}
 
                     MDIconButton:
                         id: submit__icon_new_vehicle
@@ -232,8 +229,12 @@
     orientation: "vertical"
     spacing: "12dp"
     size_hint_y: None
-    height: "60dp"
+    height: "120dp"
 
     MDTextField:
     	id: recipient
         hint_text: "New Owners Email"
+    
+    MDTextField:
+    	id: key
+    	hint_text: "Enter Your Private Key"

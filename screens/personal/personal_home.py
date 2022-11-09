@@ -55,20 +55,14 @@ class CarItemPersonal(MDCardSwipe):
     def transfer_personal(self, fulfilled_creation, current_email, home, *args):
     	bdb_root_url = 'https://test.ipdb.io'
     	bdb = BigchainDB(bdb_root_url)
-    	#FOR NOW only transfer back to business
-    	business_path = os.path.dirname(os.path.abspath("business.json")) + '/business.json'
-    	with open(business_path, 'r') as b_users:
-    		business_users = json.load(b_users)
-    	b_users.close()
+    	URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
     	email = self.dialog.content_cls.ids.recipient.text
-    	dest = business_users.get(email)
-    	recipient_pub = dest[-2]
-    	personal_path = os.path.dirname(os.path.abspath("personal.json")) + '/personal.json'
-    	with open(personal_path, 'r') as p_users:
-    		personal_users = json.load(p_users)
-    	p_users.close()
-    	info = personal_users.get(current_email)
-    	sender_pvt = info[-1]
+    	user = requests.get(url = URL, params = {'email': email})
+    	dest_data = user.json()
+    	
+    	recipient_pub = dest_data['Items'][0]["publicKey"]["S"]
+    	
+    	sender_pvt = self.dialog.content_cls.ids.key.text
     	
     	creation_tx = fulfilled_creation
     	asset_id = creation_tx['id']
@@ -104,10 +98,6 @@ class CarItemPersonal(MDCardSwipe):
     	#send the transfer of the car to joe on the bigchaindb network
     	sent_transfer = bdb.transactions.send_commit(fulfilled_transfer)
     	
-    	print("Is " + email + " the owner of the car?", sent_transfer['outputs'][0]['public_keys'][0] == recipient_pub)
-    	print("Was ford the previous owner of the car?", fulfilled_transfer['inputs'][0]['owners_before'][0] == info[-2])
-    	print("What is the transaction ID for the transfer from ford to joe?", sent_transfer['id'])
-    	
     	home.remove_widget(self)
     	self.dialog.dismiss()
 
@@ -122,7 +112,7 @@ class PersonalHomeScreen(MDScreen):
     	card.ids.name_personal.text = vehicle['data']['vehicle']['make']
     	card.ids.name_personal.secondary_text = vehicle['data']['vehicle']['model']
     	card.ids.name_personal.tertiary_text = vehicle['data']['vehicle']['VIN']
-    	card.ids.transfer_personal.on_press=lambda *args: card.transfer_dialog(fulfilled_tx_car, self.ids.name.text, self.ids.content_personal, *args)
+    	card.ids.transfer_personal.on_press=lambda *args: card.transfer_dialog(fulfilled_tx_car, self.ids.email.text, self.ids.content_personal, *args)
     	
     	self.ids.content_personal.add_widget(card)
         
@@ -137,16 +127,15 @@ class PersonalHomeScreen(MDScreen):
     	user = requests.get(url = URL, params = {'email': email})
     	data = user.json()
     	
-    	pub = data['Items'][0]['publicKey']
+    	pub = data['Items'][0]['publicKey']["S"]
     	data_list = bdb.metadata.get(search = pub)
-    	#print(data_list)
+
     	for i in data_list:
     		temp = bdb.transactions.get(asset_id=i['id'])
-    		#print("FIRST:", temp)
-    		#print("ALREADY_IN:",already_in)
+    		
     		if temp[-1]['operation'] == 'TRANSFER' and (temp[-1]['asset']['id'] not in already_in):
     			check = bdb.transactions.get(asset_id=temp[-1]['asset']['id'])
-    			#print("SECOND:", check)
+    			
     			if(check[-1]['metadata']['owner'] == pub):
     				already_in.append(check[-1]['asset']['id'])
     				vehicle = check[0]['asset']
