@@ -31,7 +31,6 @@
     MDBoxLayout:
         MDLabel:
      	   id: email
-     	   text: ''
 
     MDBottomNavigation:
 
@@ -65,8 +64,12 @@
     orientation: "vertical"
     spacing: "12dp"
     size_hint_y: None
-    height: "60dp"
+    height: "120dp"
 
     MDTextField:
     	id: recipient
         hint_text: "New Owners Email"
+        
+    MDTextField:
+    	id: key
+    	hint_text: "Enter Your Private Key"
