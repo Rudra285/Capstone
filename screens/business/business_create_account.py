@@ -2,11 +2,18 @@ from kivymd.uix.screen import MDScreen
 from kivy.properties import StringProperty
 from bigchaindb_driver import BigchainDB
 from bigchaindb_driver.crypto import generate_keypair
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.button import MDFlatButton
+from kivymd.uix.boxlayout import MDBoxLayout
 import requests
 import hashlib
 import os
 
+class PrivateKey(MDBoxLayout):
+	pass
+			
 class BusinessCreateAccountScreen(MDScreen):
+	dialog = None
 	email_prompt = StringProperty("Account Email")
 	business_name = StringProperty("Business Name")
 	password_prompt = StringProperty("Password")
@@ -127,13 +134,33 @@ class BusinessCreateAccountScreen(MDScreen):
 			
 			#send the creation of the dealership to bigchaindb
 			sent_creation_tx_dealership = bdb.transactions.send_commit(fulfilled_creation_tx_dealership)
-			
+						
 			#get the txid of the dealership creation
 			txid_dealership = fulfilled_creation_tx_dealership['id']
 			print("What is the transaction ID for the creation of the dealership?", txid_dealership)
 			print("Dealership:", dealership)
+			
+			#Show Private Key
+			if not self.dialog:
+				prompt = PrivateKey()
+				prompt.ids.key.text = user_key.private_key
+				self.dialog = MDDialog(
+					title = "Private Key (DON'T FORGET)",
+					type = "custom",
+					content_cls = prompt,
+					buttons = [
+						MDFlatButton(
+							text = "OK",
+							on_press = self.close_key
+						)
+					]
+				)
+				self.dialog.open()
 		else:
 			print('Account already exists!')
+			
+	def close_key(self, obj):
+		self.dialog.dismiss()
 
 	def goBack(self, app):
             app.root.current = 'business_login_screen'

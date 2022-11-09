@@ -13,7 +13,6 @@ class BusinessLoginScreen(MDScreen):
 
 
     def loginButtonClicked(self, root, app):
-        print("Login Button Clicked")
 
         #get the input for the email
         email = self.ids.business_login_email.text
