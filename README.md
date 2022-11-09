@@ -1,4 +1,4 @@
-# My Garage App (Capstone)
+#My Garage App (Capstone)
 
 The My Garage App is meant to allow vehicle owners to keep track of the maintenance performed to their vehicles over the course of the vehicle's life span. By implementing blockchain technology the mainteance follows the vehicle even when owners buy and sell a vehicle, allowing buyers to be better informed of their potential purchase. 
 
