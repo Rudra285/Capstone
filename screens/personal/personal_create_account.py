@@ -1,10 +1,16 @@
 from kivymd.uix.screen import MDScreen
 from kivy.properties import StringProperty
 from bigchaindb_driver.crypto import generate_keypair
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.button import MDFlatButton
+from kivymd.uix.boxlayout import MDBoxLayout
 import hashlib
 import os
 import requests
 
+class PersonalPrivateKey(MDBoxLayout):
+	pass
+	
 class PersonalCreateAccountScreen(MDScreen):
     email_prompt = StringProperty("Account Email")
     name_prompt = StringProperty("Enter your Name")
@@ -13,9 +19,9 @@ class PersonalCreateAccountScreen(MDScreen):
     email = StringProperty()
     password = StringProperty()
     name = StringProperty()
+    dialog = None
 
     def onClick(self):
-        print("Create Account Button Clicked")
 
         #get the input for the email
         email = self.ids.personal_create_email.text
@@ -55,8 +61,28 @@ class PersonalCreateAccountScreen(MDScreen):
         	}
         	
         	post = requests.post(url = URL, json = new_user)
+        	
+        	#Show Private Key
+        	if not self.dialog:
+        		prompt = PersonalPrivateKey()
+        		prompt.ids.key.text = user_key.private_key
+        		self.dialog = MDDialog(
+        			title = "Private Key (DON'T FORGET)",
+        			type = "custom",
+        			content_cls = prompt,
+        			buttons = [
+        				MDFlatButton(
+        					text = "OK",
+        					on_press = self.close_key
+        				)
+        			]
+        		)
+        		self.dialog.open()
         else:
         	print('Account already exists!')
+        	
+    def close_key(self, obj):
+    	self.dialog.dismiss()
 
     def goBack(self, app):
         app.root.current = 'personal_login_screen'
