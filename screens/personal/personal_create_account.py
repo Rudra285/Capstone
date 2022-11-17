@@ -14,47 +14,47 @@ class PersonalPrivateKey(MDBoxLayout):
 	pass
 	
 class PersonalCreateAccountScreen(MDScreen):
-    email_prompt = StringProperty("Account Email")
-    name_prompt = StringProperty("Enter your Name")
-    password_prompt = StringProperty("Enter your Password")
-    btn_text = StringProperty("Create Account")
-    email = StringProperty()
-    password = StringProperty()
-    name = StringProperty()
-    dialog = None
+	email_prompt = StringProperty("Account Email")
+	name_prompt = StringProperty("Enter your Name")
+	password_prompt = StringProperty("Enter your Password")
+	btn_text = StringProperty("Create Account")
+	email = StringProperty()
+	password = StringProperty()
+	name = StringProperty()
+	dialog = None
 
-    def onClick(self):
+	def onClick(self):
 
         #get the input for the email
-        email = self.ids.personal_create_email.text
-        print(email)
+		email = self.ids.personal_create_email.text
+		print(email)
 
         #get the input for the password
-        password = self.ids.personal_create_password.text
-        print(password)
+		password = self.ids.personal_create_password.text
+		print(password)
 
-        name = self.ids.personal_create_name.text
-        print(name)
+		name = self.ids.personal_create_name.text
+		print(name)
         
         #Generate Keypair
-        user_key = generate_keypair()
+		user_key = generate_keypair()
         
         #POST user data to "users" database
-        URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
+		URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
         
-        user = requests.get(url = URL, params = {'email': email})
-        data = user.json()
+		user = requests.get(url = URL, params = {'email': email})
+		data = user.json()
         
-        if len(data['Items']) == 0:
+		if len(data['Items']) == 0:
         	#Send POST
-        	salt = os.urandom(32) # A new salt for this user
+			salt = os.urandom(32) # A new salt for this user
         	#Encode password and add salt
-        	encoded_passwd = password.encode('utf-8') + salt
+			encoded_passwd = password.encode('utf-8') + salt
         	#Hash password
-        	hashed_passwd = hashlib.pbkdf2_hmac('sha256', encoded_passwd, salt, 100000)
+			hashed_passwd = hashlib.pbkdf2_hmac('sha256', encoded_passwd, salt, 100000)
         	
         	#Create entry
-        	new_user = {
+			new_user = {
         		'email': email,
         		'salt': salt.hex(),
         		'password': hashed_passwd.hex(),
@@ -62,13 +62,13 @@ class PersonalCreateAccountScreen(MDScreen):
         		'account': 'P'
         	}
         	
-        	post = requests.post(url = URL, json = new_user)
+			post = requests.post(url = URL, json = new_user)
         	
         	#Show Private Key
-        	if not self.dialog:
-        		prompt = PersonalPrivateKey()
-        		prompt.ids.key.text = user_key.private_key
-        		self.dialog = MDDialog(
+			if not self.dialog:
+				prompt = PersonalPrivateKey()
+				prompt.ids.key.text = user_key.private_key
+				self.dialog = MDDialog(
         			title = "Private Key (DON'T FORGET)",
         			type = "custom",
         			content_cls = prompt,
@@ -83,15 +83,15 @@ class PersonalCreateAccountScreen(MDScreen):
         				)
         			]
         		)
-        		self.dialog.open()
-        else:
-        	print('Account already exists!')
+				self.dialog.open()
+		else:
+			print('Account already exists!')
         	
-    def close_key(self, obj):
-    	self.dialog.dismiss()
+	def close_key(self, obj):
+		self.dialog.dismiss()
     
-    def copy_clip(self, obj):
-    	pyclip.copy(self.dialog.content_cls.ids.key.text)
+	def copy_clip(self, obj):
+		pyclip.copy(self.dialog.content_cls.ids.key.text)
 
-    def goBack(self, app):
-        app.root.current = 'personal_login_screen'
+	def goBack(self, app):
+		app.root.current = 'personal_login_screen'

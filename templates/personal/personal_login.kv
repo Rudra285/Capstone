@@ -41,7 +41,8 @@
             MDTextButton:
                 text: "Create a Personal Account"
                 pos_hint: {"center_x": 0.80, "center_y": 0.2}
-                on_release: app.root.current = 'personal_create_account_screen'
+                # on_release: app.root.current = 'personal_create_account_screen'
+                on_release: root.create_personal_account_clicked(root, app)
 
             MDTextField:
                 id: personal_login_email
