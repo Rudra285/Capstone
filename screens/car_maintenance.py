@@ -18,27 +18,26 @@ class Maintenance(MDExpansionPanelOneLine):
 
 class CarMaintenanceScreen(MDScreen):
 
-    def __init__(self, **kwargs):
-        super(CarMaintenanceScreen, self).__init__(**kwargs)
-        Clock.schedule_once(self.on_start)
+	def __init__(self, **kwargs):
+		super(CarMaintenanceScreen, self).__init__(**kwargs)
+		Clock.schedule_once(self.on_start)
         
-    def load(self, vin):
-    	bdb_root_url = 'https://test.ipdb.io'
-    	bdb = BigchainDB(bdb_root_url)
+	def load(self, vin):
+		bdb_root_url = 'https://test.ipdb.io'
+		bdb = BigchainDB(bdb_root_url)
     	
-    	query = bdb.metadata.get(search = vin)
-    	for entry in query:
-    		maint = Maintenance()
-    		maint_info = Content()
-    		maint.maintenance = entry['metadata']['maintenance']
-    		maint_info.date = entry['metadata']['date']
-    		self.ids.content_maintenance.add_widget(MDExpansionPanel(
+		query = bdb.metadata.get(search = vin)
+		for entry in query:
+			maint = Maintenance()
+			maint_info = Content()
+			maint.maintenance = entry['metadata']['maintenance']
+			maint_info.date = entry['metadata']['date']
+			self.ids.content_maintenance.add_widget(MDExpansionPanel(
     			icon = "car-wrench",
     			content=maint_info,
     			panel_cls=maint))
     	
-    def on_start(self, *args):
-
-        pass
+	def on_start(self, *args):
+		pass
             
 

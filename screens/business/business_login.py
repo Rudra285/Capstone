@@ -1,5 +1,7 @@
 from kivymd.uix.screen import MDScreen
 from kivy.properties import StringProperty
+from kivymd.uix.button import MDFlatButton
+from kivymd.uix.dialog import MDDialog
 import os
 import requests
 import hashlib
@@ -10,6 +12,30 @@ class BusinessLoginScreen(MDScreen):
     btn_text = StringProperty("Login")
     email = StringProperty()
     password = StringProperty()
+    dialog = None
+
+    def create_business_account_clicked(self, root, app):
+
+        cancel_btn = MDFlatButton(text="CANCEL", on_release=self.close_dialog)
+        accept_btn = MDFlatButton(text="ACCEPT", on_release=lambda *args: self.create_account_screen(app, *args))
+
+        if not self.dialog:
+            self.dialog = MDDialog(
+                title="Acknowledgment Required For Security Reasons:",
+                text="Do not create an account on anyone elses device but your own.\nUpon account creation a private key will be displayed to you.\nYou are responsible, as the account owner, to protect this private key.\nWithout access to this private key no transfers can be made.\nIt is recommended that the private key is stored in an encrypted device or paper that is kept in a secure location.",
+                buttons=[
+                    cancel_btn, accept_btn
+                ],
+            )
+        self.dialog.open()
+
+    def close_dialog(self, obj):
+        self.dialog.dismiss()
+
+ 
+    def create_account_screen(self, app, *args):
+        self.dialog.dismiss()
+        app.root.current = 'business_create_account_screen'
 
 
     def loginButtonClicked(self, root, app):
@@ -30,21 +56,21 @@ class BusinessLoginScreen(MDScreen):
         data = user.json()
         
         if len(data['Items']) == 0:
-        	print('Account does not exist!')
+            print('Account does not exist!')
         else:
-        	if data['Items'][0]['account']['S'] == 'B':
-        		salt = bytes.fromhex(data['Items'][0]['salt']['B'])
-        		encoded_input = password.encode('utf-8') + salt
-        		hashed_input = hashlib.pbkdf2_hmac('sha256', encoded_input, salt, 100000)
-        		check = hashed_input.hex()
+            if data['Items'][0]['account']['S'] == 'B':
+                salt = bytes.fromhex(data['Items'][0]['salt']['B'])
+                encoded_input = password.encode('utf-8') + salt
+                hashed_input = hashlib.pbkdf2_hmac('sha256', encoded_input, salt, 100000)
+                check = hashed_input.hex()
         		
-        		if data['Items'][0]['password']['B'] == check:
-        			root.manager.get_screen('business_home_screen').ids.email.text = email
-        			root.manager.get_screen('business_home_screen').load()
-        			app.root.current = 'business_home_screen'
-        			print('Login Success')
-        		else:
-        			print('Password does not match!')
+                if data['Items'][0]['password']['B'] == check:
+                    root.manager.get_screen('business_home_screen').ids.email.text = email
+                    root.manager.get_screen('business_home_screen').load()
+                    app.root.current = 'business_home_screen'
+                    print('Login Success')
+                else:
+                    print('Password does not match!')
 
         #TODO Make sure the email and password are not empty
 

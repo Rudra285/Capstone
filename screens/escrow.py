@@ -2,15 +2,16 @@ from bigchaindb_driver import BigchainDB
 import time
 from bigchaindb_driver.common.crypto import PrivateKey
 from threading import Thread
+
 class Escrow():
 	PrivateKeyList = []
 	
 	def __init__(self):
-        	# execute the base constructor
-        	Thread.__init__(self)
-        	# set a default value
-        	self.r = None
-        	self.pub = None
+		# execute the base constructor
+		Thread.__init__(self)
+		# set a default value
+		self.r = None
+		self.pub = None
 	
 	#Only call this for the first time submitting private key
 	def verify(self, private_key, public_list):

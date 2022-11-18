@@ -42,7 +42,7 @@
             MDTextButton:
                 text: "Create a Business Account"
                 pos_hint: {"center_x": 0.8, "center_y": 0.2}
-                on_release: app.root.current = 'business_create_account_screen'
+                on_release: root.create_business_account_clicked(root, app)
 
             MDTextField:
                 id: business_login_email
