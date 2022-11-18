@@ -223,6 +223,7 @@ class BusinessHomeScreen(MDScreen):
 		Clock.schedule_once(self.next)
 		
 	def logout(self, root, app):
+		self.ids.content.clear_widgets()
 		app.root.current = 'startup_screen'
     	
 	def next(self):

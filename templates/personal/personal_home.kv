@@ -49,6 +49,7 @@
                     width: root.height
 
                 MDScrollView:
+                    id: personal_scroll
                     scroll_timeout: 100
 
                     MDList:
@@ -56,9 +57,22 @@
                         padding: 0
 
         MDBottomNavigationItem:
+            name: "notifications"
+            text: 'Notifications'
+            icon: 'email'
+
+            MDBoxLayout:
+                orientation: "vertical"
+
+                MDLabel:
+                    text: "There are no notifications at this time"
+                    halign: "center"
+
+        MDBottomNavigationItem:
+            name: "logout"
             text: 'Logout'
             icon: 'logout'
-            on_tab_press: app.stop()
+            on_tab_press: root.logout(root, app)
 
 <TransferPersonalPrompt>
     orientation: "vertical"
@@ -69,7 +83,21 @@
     MDTextField:
     	id: recipient
         hint_text: "New Owners Email"
+        icon_left: "email"
+        helper_text: "If entering multiple emails, separate by single space."
         
     MDTextField:
     	id: key
     	hint_text: "Enter Your Private Key"
+        icon_left: "key-variant"
+
+<EscrowNotificationPrompt>
+    orientation: "vertical"
+    spacing: "12dp"
+    size_hint_y: None
+    height: "120dp"
+        
+    MDTextField:
+    	id: priv_key
+    	hint_text: "Enter Your Private Key"
+        icon_left: "key-variant"

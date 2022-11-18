@@ -4,7 +4,8 @@ from kivymd.app import MDApp
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager
 from kivy.core.window import Window
-
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.button import MDFlatButton
 
 class WindowManager(ScreenManager):
     pass
@@ -13,6 +14,8 @@ class WindowManager(ScreenManager):
 Window.size = (700, 700)
 
 class GarageApp(MDApp):
+    dialog = None
+
     def build(self):
         self.title = "MY GARAGE"
         self.theme_cls.primary_palette = "Green"

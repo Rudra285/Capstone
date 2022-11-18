@@ -16,21 +16,28 @@ class PersonalLoginScreen(MDScreen):
     dialog = None
 
     def create_personal_account_clicked(self, root, app):
+
+        cancel_btn = MDFlatButton(text="CANCEL", on_release=self.close_dialog)
+        accept_btn = MDFlatButton(text="ACCEPT", on_release=lambda *args: self.create_account_screen(app, *args))
+
         if not self.dialog:
             self.dialog = MDDialog(
                 title="Acknowledgment Required For Security Reasons:",
                 text="Do not create an account on anyone elses device but your own.\nUpon account creation a private key will be displayed to you.\nYou are responsible, as the account owner, to protect this private key.\nWithout access to this private key no transfers can be made.\nIt is recommended that the private key is stored in an encrypted device or paper that is kept in a secure location.",
                 buttons=[
-                    MDFlatButton(
-                        text="CANCEL",
-                    ),
-                    MDFlatButton(
-                        text="ACCEPT",
-                    ),
+                    cancel_btn, accept_btn
                 ],
             )
         self.dialog.open()
 
+    def close_dialog(self, obj):
+        self.dialog.dismiss()
+
+ 
+    def create_account_screen(self, app, *args):
+        self.dialog.dismiss()
+        app.root.current = 'personal_create_account_screen'
+    
 
     def loginButtonClicked(self, root, app):
 
