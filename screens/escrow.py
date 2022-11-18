@@ -1,28 +1,29 @@
-from bigchaindb_driver import BigchainDB
 import time
 from bigchaindb_driver.common.crypto import PrivateKey
-from threading import Thread
+from kivy.clock import mainthread
 
 class Escrow():
 	PrivateKeyList = []
 	
 	def __init__(self):
-		# execute the base constructor
-		Thread.__init__(self)
-		# set a default value
-		self.r = None
-		self.pub = None
+        	# execute the base constructor
+        	Thread.__init__(self)
+        	# set a default value
+        	self.r = None
+        	self.pub = None
 	
 	#Only call this for the first time submitting private key
+	
 	def verify(self, private_key, public_list):
 		if len(public_list) == 1:
 			encrypt_private = PrivateKey(private_key)
 			decrypted_public = encrypt_private.get_verifying_key().encode().decode()
+			print(public_list, decrypted_public)
 			if decrypted_public == public_list[0]:
 				print("TRUE")
-				return True
+				return (private_key, True)
 			print("FALSE")
-			return False
+			return (private_key, False)
 		#verify_private = []
 		encrypt_private = PrivateKey(private_key)
 		check_pub = encrypt_private.get_verifying_key().encode().decode()
@@ -31,9 +32,12 @@ class Escrow():
 			self.PrivateKeyList.append(private_key)
 		else:
 			print("NOT TRUE")
-			return False
+			final_privateKeyList = self.PrivateKeyList.copy()
+			PrivateKeyList.clear()
+			return (final_privateKeyList, False)
 		print("PRIVATE", self.PrivateKeyList)
 		print("check", check_pub)
+		@mainthread
 		def start_escrow(public_list):
 			
 			max_limit = 120  # Seconds.
@@ -68,9 +72,7 @@ class Escrow():
 				print("WROKS")
 			else:
 				print("NO")
-			
-			return (result, PrivateKeyList)
+			final_privateKeyList = self.PrivateKeyList.copy()
 			self.PrivateKeyList.clear()
+			return (final_privateKeyList, result)
 		return "Nothing"
-		 
-		

@@ -11,6 +11,7 @@ import os
 import requests
 from datetime import datetime
 from  kivymd.uix.card import MDCardSwipe
+from screens.escrow import Escrow
 
 class TransferPrompt(MDBoxLayout):
 	pass
@@ -58,51 +59,60 @@ class CarItem(MDCardSwipe):
 		bdb_root_url = 'https://test.ipdb.io'
 		bdb = BigchainDB(bdb_root_url)
 		URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
-		email = self.dialog.content_cls.ids.recipient.text
-		user = requests.get(url = URL, params = {'email': email})
-		dest_data = user.json()
-		
-		recipient_pub = dest_data['Items'][0]["publicKey"]["S"]
+		email_str = self.dialog.content_cls.ids.recipient.text#Subject to change
+		email_list = email_str.split() #Subject to change
+		recipient_public = []
+		for i in email_list:
+			user = requests.get(url = URL, params = {'email': i})
+			dest_data = user.json()
+			
+			recipient_pub = dest_data['Items'][0]["publicKey"]["S"]
+			recipient_public.append(recipient_pub)
+		recipient_public_tup = tuple(recipient_public)
 		
 		sender_pvt = self.dialog.content_cls.ids.key.text
+		owner_public_keys = fulfilled_creation['outputs'][0]['public_keys']
+		(all_sender_pvt, verified) = Escrow.verify(Escrow, sender_pvt, owner_public_keys)
 		
-		creation_tx = fulfilled_creation
-		if(creation_tx['operation'] == 'CREATE'):
-			asset_id = creation_tx['id']
-		elif(creation_tx['operation'] == 'TRANSFER'):
-			asset_id = creation_tx['asset']['id']
-		transfer_asset = {
-			'id': asset_id,
-		}
-		output_index = 0
-		output = creation_tx['outputs'][output_index]
-		transfer_input = {
-			'fulfillment': output['condition']['details'],
-			'fulfills': {
-				'output_index': output_index,
-				'transaction_id': creation_tx['id']
-			},
-			'owners_before': output['public_keys']
-		}
-		
-		#prepare the transfer of car
-		prepared_transfer = bdb.transactions.prepare(
-			operation='TRANSFER',
-			asset=transfer_asset,
-			inputs=transfer_input,
-			recipients=recipient_pub,
-			metadata = {'owner': recipient_pub}
-		)
-		
-		fulfilled_transfer = bdb.transactions.fulfill(
-			prepared_transfer,
-			private_keys=sender_pvt,
-		)
-		
-		#send the transfer of the car to joe on the bigchaindb network
-		sent_transfer = bdb.transactions.send_commit(fulfilled_transfer)
-		
-		home.remove_widget(self)
+		if verified:
+			creation_tx = fulfilled_creation
+			if(creation_tx['operation'] == 'CREATE'):
+				asset_id = creation_tx['id']
+			elif(creation_tx['operation'] == 'TRANSFER'):
+				asset_id = creation_tx['asset']['id']
+			transfer_asset = {
+				'id': asset_id,
+			}
+			
+			output_index = 0
+			output = creation_tx['outputs'][output_index]
+			transfer_input = {
+				'fulfillment': output['condition']['details'],
+				'fulfills': {
+					'output_index': output_index,
+					'transaction_id': creation_tx['id']
+				},
+				'owners_before': output['public_keys']
+			}
+			
+			#prepare the transfer of car
+			prepared_transfer = bdb.transactions.prepare(
+				operation='TRANSFER',
+				asset=transfer_asset,
+				inputs=transfer_input,
+				recipients=recipient_public_tup,
+				metadata = {'owner': recipient_public}
+			)
+			
+			fulfilled_transfer = bdb.transactions.fulfill(
+				prepared_transfer,
+				private_keys=all_sender_pvt,
+			)
+			
+			#send the transfer of the car to joe on the bigchaindb network
+			sent_transfer = bdb.transactions.send_commit(fulfilled_transfer)
+			
+			home.remove_widget(self)
 		self.dialog.dismiss()
 	
     
@@ -202,7 +212,7 @@ class BusinessHomeScreen(MDScreen):
 		for i in data_list:
 			temp = bdb.transactions.get(asset_id=i['id'])
 
-			if temp[-1]['metadata']['owner'] == pub:
+			if pub in temp[-1]['metadata']['owner']:
 				if temp[-1]['operation'] == 'CREATE':
 					vehicle = temp[-1]['asset']
 					self.add_card(vehicle, temp[-1])
@@ -210,7 +220,7 @@ class BusinessHomeScreen(MDScreen):
 					check = bdb.transactions.get(asset_id=temp[-1]['asset']['id'])
 				
 					
-					if(check[-1]['metadata']['owner'] == pub):
+					if(pub in check[-1]['metadata']['owner']):
 						already_in.append(check[-1]['asset']['id'])
 						vehicle = check[0]['asset']
 						self.add_card(vehicle, temp[-1])
