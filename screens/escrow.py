@@ -62,6 +62,7 @@ class Escrow():
 				#ver.value = True
 				self.transfer(self, fulfilled_creation, recipient_tup, recipient_list, private_key)
 				home.remove_widget(card)
+				self.PrivateKeyList[:] = []
 				return
 				#return (private_key, True)
 			
