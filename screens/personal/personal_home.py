@@ -12,7 +12,7 @@ from kivymd.uix.list import IRightBodyTouch
 from kivymd.uix.button import MDFlatButton
 from bigchaindb_driver import BigchainDB
 from screens.escrow import Escrow
-from threading import Thread
+from multiprocessing import Process
 
 class TransferPersonalPrompt(MDBoxLayout):
 	pass
@@ -76,45 +76,9 @@ class CarItemPersonal(MDCardSwipe):
 		sender_pvt = self.dialog.content_cls.ids.key.text
 		owner_public_keys = fulfilled_creation['outputs'][0]['public_keys']
 		
-		verified = False
-		Thread(target = Escrow.verify, args=(Escrow, sender_pvt, owner_public_keys)).start()
+		Process(target = Escrow.verify, args=(Escrow, sender_pvt, owner_public_keys, recipient_public_tup, recipient_public, home, self, fulfilled_creation)).start()
 		
-		if verified:
-			creation_tx = fulfilled_creation
-			asset_id = creation_tx['id']
-			transfer_asset = {
-				'id': creation_tx['asset']['id'],
-			}
-			
-			output_index = 0
-			output = creation_tx['outputs'][output_index]
-			transfer_input = {
-				'fulfillment': output['condition']['details'],
-				'fulfills': {
-					'output_index': output_index,
-					'transaction_id': creation_tx['id']
-				},
-				'owners_before': output['public_keys']
-			}
-			
-			#prepare the transfer of car
-			prepared_transfer = bdb.transactions.prepare(
-				operation='TRANSFER',
-				asset=transfer_asset,
-				inputs=transfer_input,
-				recipients=recipient_public_tup,
-				metadata = {'owner': recipient_public}
-			)
-			
-			fulfilled_transfer = bdb.transactions.fulfill(
-				prepared_transfer,
-				private_keys=all_sender_pvt,
-			)
-			
-			#send the transfer of the car to joe on the bigchaindb network
-			sent_transfer = bdb.transactions.send_commit(fulfilled_transfer)
-			
-			home.remove_widget(self)
+		
 		self.dialog.dismiss()
 
 	def show_alert_dialog(self):

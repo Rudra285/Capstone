@@ -12,6 +12,7 @@ import requests
 from datetime import datetime
 from  kivymd.uix.card import MDCardSwipe
 from screens.escrow import Escrow
+from multiprocessing import Process
 
 class TransferPrompt(MDBoxLayout):
 	pass
@@ -72,47 +73,10 @@ class CarItem(MDCardSwipe):
 		
 		sender_pvt = self.dialog.content_cls.ids.key.text
 		owner_public_keys = fulfilled_creation['outputs'][0]['public_keys']
-		(all_sender_pvt, verified) = Escrow.verify(Escrow, sender_pvt, owner_public_keys)
 		
-		if verified:
-			creation_tx = fulfilled_creation
-			if(creation_tx['operation'] == 'CREATE'):
-				asset_id = creation_tx['id']
-			elif(creation_tx['operation'] == 'TRANSFER'):
-				asset_id = creation_tx['asset']['id']
-			transfer_asset = {
-				'id': asset_id,
-			}
-			
-			output_index = 0
-			output = creation_tx['outputs'][output_index]
-			transfer_input = {
-				'fulfillment': output['condition']['details'],
-				'fulfills': {
-					'output_index': output_index,
-					'transaction_id': creation_tx['id']
-				},
-				'owners_before': output['public_keys']
-			}
-			
-			#prepare the transfer of car
-			prepared_transfer = bdb.transactions.prepare(
-				operation='TRANSFER',
-				asset=transfer_asset,
-				inputs=transfer_input,
-				recipients=recipient_public_tup,
-				metadata = {'owner': recipient_public}
-			)
-			
-			fulfilled_transfer = bdb.transactions.fulfill(
-				prepared_transfer,
-				private_keys=all_sender_pvt,
-			)
-			
-			#send the transfer of the car to joe on the bigchaindb network
-			sent_transfer = bdb.transactions.send_commit(fulfilled_transfer)
-			
-			home.remove_widget(self)
+		Process(target = Escrow.verify, args=(Escrow, sender_pvt, owner_public_keys, recipient_public_tup, recipient_public, home, self, fulfilled_creation)).start()
+		
+		
 		self.dialog.dismiss()
 	
     
