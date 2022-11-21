@@ -23,6 +23,8 @@ class EscrowNotificationPrompt(MDBoxLayout):
 class CarItemPersonal(MDCardSwipe):
 	make = StringProperty()
 	model = StringProperty()
+	screen = ''
+	scrollview = None
 	dialog = None
 
 	def __init__(self, *args, **kwargs):
@@ -54,7 +56,8 @@ class CarItemPersonal(MDCardSwipe):
 	def maintenance_screen(self, app):
     	#metadata query car VIN, and get the mainteinance asset
 		car_VIN = self.ids.name_personal.tertiary_text
-		app.root.get_screen('car_maintenance').load(car_VIN)
+		app.root.get_screen('car_maintenance').load(car_VIN, self.screen)
+		self.scrollview.clear_widgets()
 		app.root.current = 'car_maintenance'
     
 	def transfer_personal(self, fulfilled_creation, current_email, home, *args):
@@ -104,6 +107,8 @@ class PersonalHomeScreen(MDScreen):
         
 	def add_card(self, vehicle, fulfilled_tx_car):
 		card = CarItemPersonal();
+		card.screen = self.name
+		card.scrollview = self.ids.content_personal
 		card.ids.name_personal.text = vehicle['data']['vehicle']['make']
 		card.ids.name_personal.secondary_text = vehicle['data']['vehicle']['model']
 		card.ids.name_personal.tertiary_text = vehicle['data']['vehicle']['VIN']

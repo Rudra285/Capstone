@@ -20,6 +20,8 @@ class TransferPrompt(MDBoxLayout):
 class CarItem(MDCardSwipe):
 	make = StringProperty()
 	model = StringProperty()
+	screen = ''
+	scrollview = None
 	dialog = None
 
 	def __init__(self, *args, **kwargs):
@@ -52,7 +54,8 @@ class CarItem(MDCardSwipe):
 		
 		#metadata query car VIN, and get the mainteinance asset
 		car_VIN = self.ids.name.tertiary_text
-		app.root.get_screen('car_maintenance').load(car_VIN)
+		app.root.get_screen('car_maintenance').load(car_VIN, self.screen)
+		self.scrollview.clear_widgets()
 		app.root.current = 'car_maintenance'
 		
 
@@ -151,6 +154,8 @@ class BusinessHomeScreen(MDScreen):
     
 	def add_card(self, vehicle, fulfilled_creation_tx_car):
 		card = CarItem();
+		card.screen = self.name
+		card.scrollview = self.ids.content
 		card.ids.name.text = vehicle['data']['vehicle']['make']
 		card.ids.name.secondary_text = vehicle['data']['vehicle']['model']
 		card.ids.name.tertiary_text = vehicle['data']['vehicle']['VIN']

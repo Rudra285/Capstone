@@ -17,12 +17,15 @@ class Maintenance(MDExpansionPanelOneLine):
 
 
 class CarMaintenanceScreen(MDScreen):
+	
+	LastScreen = ''
 
 	def __init__(self, **kwargs):
 		super(CarMaintenanceScreen, self).__init__(**kwargs)
 		Clock.schedule_once(self.on_start)
         
-	def load(self, vin):
+	def load(self, vin, screen):
+		self.LastScreen = screen
 		bdb_root_url = 'https://test.ipdb.io'
 		bdb = BigchainDB(bdb_root_url)
     	
@@ -36,8 +39,13 @@ class CarMaintenanceScreen(MDScreen):
     			icon = "car-wrench",
     			content=maint_info,
     			panel_cls=maint))
-    	
+    		
 	def on_start(self, *args):
 		pass
+	
+	def goBack(self, root, app):
+		root.manager.get_screen(self.LastScreen).load()
+		self.ids.content_maintenance.clear_widgets()
+		app.root.current = self.LastScreen
             
 
