@@ -70,7 +70,6 @@ class BusinessLoginScreen(MDScreen):
                     self.ids.login_status.text = ''
                     root.manager.get_screen('business_home_screen').load()
                     app.root.current = 'business_home_screen'
-                    print('Login Success')
                 else:
                     self.ids.login_status.text = 'Password does not match!'
                     self.ids.business_login_password.text = ''

@@ -38,6 +38,7 @@ class PersonalLoginScreen(MDScreen):
         self.dialog.dismiss()
         app.root.current = 'personal_create_account_screen'
     
+    #TODO Make sure the email and password are not empty
 
     def loginButtonClicked(self, root, app):
 
@@ -70,7 +71,6 @@ class PersonalLoginScreen(MDScreen):
                     self.ids.login_status.text = ''
                     root.manager.get_screen('personal_home_screen').load()
                     app.root.current = 'personal_home_screen'
-                    print('Login Success')
                 else:
                     self.ids.login_status.text = 'Password does not match!'
                     self.ids.personal_login_password.text = ''

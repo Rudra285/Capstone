@@ -126,7 +126,7 @@ class PersonalHomeScreen(MDScreen):
 		email = self.ids.email.text
 		user = requests.get(url = URL, params = {'email': email})
 		data = user.json()
-    	
+		self.ids.account_name.title = data['Items'][0]['name']['S']
 		pub = data['Items'][0]['publicKey']["S"]
 		data_list = bdb.metadata.get(search = pub)
 

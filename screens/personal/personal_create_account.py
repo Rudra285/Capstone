@@ -56,6 +56,7 @@ class PersonalCreateAccountScreen(MDScreen):
         	#Create entry
 			new_user = {
         		'email': email,
+        		'name': name,
         		'salt': salt.hex(),
         		'password': hashed_passwd.hex(),
         		'publicKey': user_key.public_key,
