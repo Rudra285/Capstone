@@ -43,7 +43,6 @@ class PersonalLoginScreen(MDScreen):
 
         #Take the input for the email
         email = self.ids.personal_login_email.text
-        print(email)
 
         #take the input for the password
         password = self.ids.personal_login_password.text
@@ -56,7 +55,9 @@ class PersonalLoginScreen(MDScreen):
         data = user.json()
         
         if len(data['Items']) == 0:
-            print('Account does not exist!')
+            self.ids.login_status.text = 'Account does not exist!'
+            self.ids.personal_login_email.text = ''
+            self.ids.personal_login_password.text = ''
         else:
             if data['Items'][0]['account']['S'] == 'P':
                 salt = bytes.fromhex(data['Items'][0]['salt']['B'])
@@ -66,11 +67,13 @@ class PersonalLoginScreen(MDScreen):
         		 
                 if data['Items'][0]['password']['B'] == check:
                     root.manager.get_screen('personal_home_screen').ids.email.text = email
+                    self.ids.login_status.text = ''
                     root.manager.get_screen('personal_home_screen').load()
                     app.root.current = 'personal_home_screen'
                     print('Login Success')
                 else:
-                    print('Password does not match!')
+                    self.ids.login_status.text = 'Password does not match!'
+                    self.ids.personal_login_password.text = ''
 
     def goBack(self, app):
         app.root.current = 'startup_screen'

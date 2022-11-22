@@ -42,7 +42,6 @@ class BusinessLoginScreen(MDScreen):
 
         #get the input for the email
         email = self.ids.business_login_email.text
-        print(email)
 
 
         #get the input for the password
@@ -56,7 +55,9 @@ class BusinessLoginScreen(MDScreen):
         data = user.json()
         
         if len(data['Items']) == 0:
-            print('Account does not exist!')
+            self.ids.login_status.text = 'Account does not exist!'
+            self.ids.business_login_email.text = ''
+            self.ids.business_login_password.text = ''
         else:
             if data['Items'][0]['account']['S'] == 'B':
                 salt = bytes.fromhex(data['Items'][0]['salt']['B'])
@@ -66,11 +67,13 @@ class BusinessLoginScreen(MDScreen):
         		
                 if data['Items'][0]['password']['B'] == check:
                     root.manager.get_screen('business_home_screen').ids.email.text = email
+                    self.ids.login_status.text = ''
                     root.manager.get_screen('business_home_screen').load()
                     app.root.current = 'business_home_screen'
                     print('Login Success')
                 else:
-                    print('Password does not match!')
+                    self.ids.login_status.text = 'Password does not match!'
+                    self.ids.business_login_password.text = ''
 
         #TODO Make sure the email and password are not empty
 

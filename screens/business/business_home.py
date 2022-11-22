@@ -114,43 +114,47 @@ class BusinessHomeScreen(MDScreen):
 		vin = self.ids.create_car_vin.text
 		email = self.ids.email.text
 		URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
-		
-		user = requests.get(url = URL, params = {'email': email})
-		data = user.json()
-		recipient_pub = data['Items'][0]["publicKey"]["S"]
-		
-		#Make a car asset that is brand new
-		vehicle_asset = {
-    			'data': {
-    				'vehicle': {
-    					'make': make,
-    					'VIN': vin,
-    					'model': model,
-    					'year': year,
-    					'mileage': '0km',
-    				}
-    			}
-    		}
-
-		prepared_creation_tx_car = bdb.transactions.prepare(
-    		operation='CREATE',
-    		signers=car_key.public_key,
-    		recipients=(recipient_pub),
-    		asset=vehicle_asset,
-    		metadata= {'owner': recipient_pub}
-    	)
-    	#fulfill the creation of the car by signing with the cars private key
-		fulfilled_creation_tx_car = bdb.transactions.fulfill(
-    		prepared_creation_tx_car,
-    		private_keys=car_key.private_key
-    	)
-    	#send the creation of the car to bigchaindb
-		sent_creation_tx_car = bdb.transactions.send_commit(fulfilled_creation_tx_car)
-    	#get the txid of the car creation
-		txid_car = fulfilled_creation_tx_car['id']
-		
-		
-		self.add_card(vehicle_asset, fulfilled_creation_tx_car)
+		vin_check = bdb.assets.get(search = vin)
+		if len(vin_check) == 0:
+			self.ids.creation_alert.text = ''
+			user = requests.get(url = URL, params = {'email': email})
+			data = user.json()
+			recipient_pub = data['Items'][0]["publicKey"]["S"]
+			
+			#Make a car asset that is brand new
+			vehicle_asset = {
+			'data': {
+				'vehicle': {
+					'make': make,
+					'VIN': vin,
+					'model': model,
+					'year': year,
+					'mileage': '0km',
+				}
+			}
+			}
+			
+			prepared_creation_tx_car = bdb.transactions.prepare(
+				operation='CREATE',
+				signers=car_key.public_key,
+				recipients=(recipient_pub),
+				asset=vehicle_asset,
+				metadata= {'owner': recipient_pub}
+			)
+			
+			#fulfill the creation of the car by signing with the cars private key
+			fulfilled_creation_tx_car = bdb.transactions.fulfill(
+				prepared_creation_tx_car,
+				private_keys=car_key.private_key
+			)
+			#send the creation of the car to bigchaindb
+			sent_creation_tx_car = bdb.transactions.send_commit(fulfilled_creation_tx_car)
+			#get the txid of the car creation
+			txid_car = fulfilled_creation_tx_car['id']
+			
+			self.add_card(vehicle_asset, fulfilled_creation_tx_car)
+		else:
+			self.ids.creation_alert.text = 'VIN already exists'
     
 	def add_card(self, vehicle, fulfilled_creation_tx_car):
 		card = CarItem();
