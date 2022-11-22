@@ -43,10 +43,8 @@ class BusinessLoginScreen(MDScreen):
         #get the input for the email
         email = self.ids.business_login_email.text
 
-
         #get the input for the password
         password = self.ids.business_login_password.text
-        print(password)
         
         #check GET request for existing account
         URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
@@ -75,6 +73,5 @@ class BusinessLoginScreen(MDScreen):
                     self.ids.business_login_password.text = ''
 
         #TODO Make sure the email and password are not empty
-
-        def goBack(self, app, root):
+    def goBack(self, app):
             app.root.current = 'startup_screen'

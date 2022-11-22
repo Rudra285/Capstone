@@ -27,6 +27,13 @@
                 halign: "center"
                 pos_hint: {"center_y": 0.9}
 
+            MDLabel:
+            	id: create_status
+            	halign: "center"
+            	theme_text_color: "Error"
+            	bold: True
+                pos_hint: {"center_y": 0.1}
+
             MDTextField:
                 id: personal_create_email
                 hint_text: root.email_prompt
@@ -58,12 +65,3 @@
                 icon: "check"
                 type: "bottom"
                 on_action_button: root.onClick()
-
-<PersonalPrivateKey>
-    orientation: "vertical"
-    spacing: "12dp"
-    size_hint_y: None
-    height: "60dp"
-    
-    MDLabel:
-    	id: key

@@ -9,9 +9,6 @@ import pyclip
 import hashlib
 import os
 import requests
-
-class PersonalPrivateKey(MDBoxLayout):
-	pass
 	
 class PersonalCreateAccountScreen(MDScreen):
 	email_prompt = StringProperty("Account Email")
@@ -27,14 +24,11 @@ class PersonalCreateAccountScreen(MDScreen):
 
         #get the input for the email
 		email = self.ids.personal_create_email.text
-		print(email)
 
         #get the input for the password
 		password = self.ids.personal_create_password.text
-		print(password)
 
 		name = self.ids.personal_create_name.text
-		print(name)
         
         #Generate Keypair
 		user_key = generate_keypair()
@@ -46,6 +40,7 @@ class PersonalCreateAccountScreen(MDScreen):
 		data = user.json()
         
 		if len(data['Items']) == 0:
+			self.ids.create_status.text =''
         	#Send POST
 			salt = os.urandom(32) # A new salt for this user
         	#Encode password and add salt
@@ -67,32 +62,27 @@ class PersonalCreateAccountScreen(MDScreen):
         	
         	#Show Private Key
 			if not self.dialog:
-				prompt = PersonalPrivateKey()
-				prompt.ids.key.text = user_key.private_key
 				self.dialog = MDDialog(
         			title = "Private Key (DON'T FORGET)",
-        			type = "custom",
-        			content_cls = prompt,
+        			text = user_key.private_key,
         			buttons = [
         				MDIconButton(
         					icon = "content-copy",
         					on_press = self.copy_clip
-        				),
-        				MDFlatButton(
-        					text = "OK",
-        					on_press = self.close_key
         				)
         			]
         		)
 				self.dialog.open()
 		else:
-			print('Account already exists!')
-        	
-	def close_key(self, obj):
-		self.dialog.dismiss()
+			self.ids.create_status.text = 'Account already exists!'
+			self.ids.personal_create_email.text = ''
+			self.ids.personal_create_password.text = ''
+			self.ids.personal_create_name.text = ''
     
 	def copy_clip(self, obj):
-		pyclip.copy(self.dialog.content_cls.ids.key.text)
+		pyclip.copy(self.dialog.text)
+		self.dialog.dismiss()
+		self.dialog = None
 
 	def goBack(self, app):
 		app.root.current = 'personal_login_screen'

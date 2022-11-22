@@ -47,7 +47,6 @@ class PersonalLoginScreen(MDScreen):
 
         #take the input for the password
         password = self.ids.personal_login_password.text
-        print(password)
         
         #check GET request for existing account
         URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
@@ -77,4 +76,3 @@ class PersonalLoginScreen(MDScreen):
 
     def goBack(self, app):
         app.root.current = 'startup_screen'
-

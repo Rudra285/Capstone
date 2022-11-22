@@ -10,9 +10,6 @@ import pyclip
 import requests
 import hashlib
 import os
-
-class PrivateKey(MDBoxLayout):
-	pass
 			
 class BusinessCreateAccountScreen(MDScreen):
 	dialog = None
@@ -145,32 +142,25 @@ class BusinessCreateAccountScreen(MDScreen):
 			
 			#Show Private Key
 			if not self.dialog:
-				prompt = PrivateKey()
-				prompt.ids.key.text = user_key.private_key
 				self.dialog = MDDialog(
 					title = "Private Key (DON'T FORGET)",
-					type = "custom",
-					content_cls = prompt,
+					text = user_key.private_key,
 					buttons = [
 						MDIconButton(
 							icon = "content-copy",
-							on_press = self.copy_clip
-						),
-						MDFlatButton(
-							text = "OK",
-							on_press = self.close_key
+							on_release = self.copy_clip
 						)
 					]
 				)
 				self.dialog.open()
 		else:
 			print('Account already exists!')
-			
-	def close_key(self, obj):
-		self.dialog.dismiss()
 		
 	def copy_clip(self, obj):
-		pyclip.copy(self.dialog.content_cls.ids.key.text)
+		pyclip.copy(self.dialog.text)
+		self.dialog.dismiss()
+		self.dialog = None
+		
 
 	def goBack(self, app):
 		app.root.current = 'business_login_screen'
