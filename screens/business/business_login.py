@@ -49,29 +49,36 @@ class BusinessLoginScreen(MDScreen):
         #check GET request for existing account
         URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
         
-        user = requests.get(url = URL, params = {'email': email})
-        data = user.json()
-        
-        if len(data['Items']) == 0:
-            self.ids.login_status.text = 'Account does not exist!'
-            self.ids.business_login_email.text = ''
-            self.ids.business_login_password.text = ''
+        if email != '' and password != '':
+        	user = requests.get(url = URL, params = {'email': email})
+        	data = user.json()
+        	
+        	if len(data['Items']) == 0:
+        		self.ids.login_status.text = 'Account does not exist!'
+        		self.ids.business_login_email.text = ''
+        		self.ids.business_login_password.text = ''
+        	else:
+        		if data['Items'][0]['account']['S'] == 'B':
+        			salt = bytes.fromhex(data['Items'][0]['salt']['B'])
+        			encoded_input = password.encode('utf-8') + salt
+        			hashed_input = hashlib.pbkdf2_hmac('sha256', encoded_input, salt, 100000)
+        			check = hashed_input.hex()
+        			
+        			if data['Items'][0]['password']['B'] == check:
+        				root.manager.get_screen('business_home_screen').ids.email.text = email
+        				self.ids.login_status.text = ''
+        				#TODO empty all fields before switching windows
+        				root.manager.get_screen('business_home_screen').load()
+        				app.root.current = 'business_home_screen'
+        			else:
+        				self.ids.login_status.text = 'Password does not match!'
+        				self.ids.business_login_password.text = ''
+        		else:
+        			self.ids.login_status.text = 'Account does not exist!'
+        			self.ids.business_login_email.text = ''
+        			self.ids.business_login_password.text = ''
         else:
-            if data['Items'][0]['account']['S'] == 'B':
-                salt = bytes.fromhex(data['Items'][0]['salt']['B'])
-                encoded_input = password.encode('utf-8') + salt
-                hashed_input = hashlib.pbkdf2_hmac('sha256', encoded_input, salt, 100000)
-                check = hashed_input.hex()
-        		
-                if data['Items'][0]['password']['B'] == check:
-                    root.manager.get_screen('business_home_screen').ids.email.text = email
-                    self.ids.login_status.text = ''
-                    root.manager.get_screen('business_home_screen').load()
-                    app.root.current = 'business_home_screen'
-                else:
-                    self.ids.login_status.text = 'Password does not match!'
-                    self.ids.business_login_password.text = ''
+        	self.ids.login_status.text = 'Fill in all the fields'
 
-        #TODO Make sure the email and password are not empty
     def goBack(self, app):
             app.root.current = 'startup_screen'
