@@ -8,7 +8,6 @@ from kivymd.uix.button import MDFlatButton
 from bigchaindb_driver import BigchainDB
 from bigchaindb_driver.crypto import generate_keypair
 from bigchaindb_driver.common.crypto import PrivateKey
-import os
 import requests
 from datetime import datetime
 from  kivymd.uix.card import MDCardSwipe
@@ -62,7 +61,9 @@ class CarItem(MDCardSwipe):
 		self.scrollview.clear_widgets()
 		app.root.current = 'car_maintenance'
 		
-
+	def remove_card(self, home):
+		print('Hi')
+		home.remove_widget(self)
 	def transfer(self, fulfilled_creation, current_email, home, *args):
 		sender_pvt = self.dialog.content_cls.ids.key.text
 		email_str = self.dialog.content_cls.ids.recipient.text
@@ -87,7 +88,7 @@ class CarItem(MDCardSwipe):
 				owner_public_keys = fulfilled_creation['outputs'][0]['public_keys']
 				
 				Process(target = Escrow.verify, args=(Escrow, sender_pvt, owner_public_keys, recipient_public_tup, recipient_public, home, self, fulfilled_creation)).start()
-				
+				#self.remove_card(home)
 				self.dialog.content_cls.ids.transfer_alert.text = ''
 				self.dialog.dismiss()
 			

@@ -2,7 +2,8 @@ import time
 from bigchaindb_driver.common.crypto import PrivateKey
 from multiprocessing import Manager
 from bigchaindb_driver import BigchainDB
-
+#from screens.business.business_home import CardItem
+#from .personal.personal_home import PersonalHomeScreen
 class Escrow():
 	manager = Manager()
 	PrivateKeyList = manager.list()
@@ -53,6 +54,7 @@ class Escrow():
 	
 	#Only call this for the first time submitting private key
 	def verify(self, private_key, public_list, recipient_tup, recipient_list, home, card, fulfilled_creation):
+		
 		if len(public_list) == 1:
 			try:
 				encrypt_private = PrivateKey(private_key)
@@ -62,7 +64,8 @@ class Escrow():
 					print("TRUE")
 					#ver.value = True
 					self.transfer(self, fulfilled_creation, recipient_tup, recipient_list, private_key)
-					home.remove_widget(card)
+					#print(card)
+					card.remove_card(home)
 					self.PrivateKeyList[:] = []
 				else:
 					print('1Incorrect Private Key')
