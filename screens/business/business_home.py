@@ -23,6 +23,7 @@ class CarItem(MDCardSwipe):
 	screen = ''
 	scrollview = None
 	dialog = None
+	
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -61,9 +62,8 @@ class CarItem(MDCardSwipe):
 		self.scrollview.clear_widgets()
 		app.root.current = 'car_maintenance'
 		
-	def remove_card(self, home):
-		print('Hi')
-		home.remove_widget(self)
+	def remove_card(self):
+		self.scrollview.remove_widget(self)
 	def transfer(self, fulfilled_creation, current_email, home, *args):
 		sender_pvt = self.dialog.content_cls.ids.key.text
 		email_str = self.dialog.content_cls.ids.recipient.text
@@ -88,7 +88,7 @@ class CarItem(MDCardSwipe):
 				owner_public_keys = fulfilled_creation['outputs'][0]['public_keys']
 				
 				Process(target = Escrow.verify, args=(Escrow, sender_pvt, owner_public_keys, recipient_public_tup, recipient_public, home, self, fulfilled_creation)).start()
-				#self.remove_card(home)
+				#self.remove_card()
 				self.dialog.content_cls.ids.transfer_alert.text = ''
 				self.dialog.dismiss()
 			
@@ -182,6 +182,7 @@ class BusinessHomeScreen(MDScreen):
 		card = CarItem();
 		card.screen = self.name
 		card.scrollview = self.ids.content
+		print(card.scrollview)
 		card.ids.name.text = vehicle['data']['vehicle']['make']
 		card.ids.name.secondary_text = vehicle['data']['vehicle']['model']
 		card.ids.name.tertiary_text = vehicle['data']['vehicle']['VIN']

@@ -65,7 +65,7 @@ class Escrow():
 					#ver.value = True
 					self.transfer(self, fulfilled_creation, recipient_tup, recipient_list, private_key)
 					#print(card)
-					card.remove_card(home)
+					card.remove_card()
 					self.PrivateKeyList[:] = []
 				else:
 					print('1Incorrect Private Key')
