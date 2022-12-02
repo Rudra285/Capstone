@@ -65,11 +65,11 @@
             icon: 'car-wrench'
 
             MDFloatLayout:
-
+            	
                 MDCard:
                     size_hint: .8, .8
                     pos_hint: {"center_x": .5, "center_y": .5}
-
+                    
                     Carousel:
                         id: form
 
@@ -96,6 +96,13 @@
 
                         MDFloatLayout:
                             id: maintenance_info
+                            
+                            MDLabel:
+                            	id: maint_alert
+                            	halign: "center"
+                            	theme_text_color: "Error"
+                            	bold: True
+                            	pos_hint: {"center_y": 0.3}
 
                             MDTextField:
                                 id: maint_performed
@@ -263,6 +270,13 @@
     	id: key
     	hint_text: "Enter Your Private Key"
         icon_left: "key-variant"
+    
+    MDLabel:
+    	id: transfer_alert
+    	halign: "center"
+    	theme_text_color: "Error"
+    	bold: True
+    	pos_hint: {"center_y": 0.3}
 
 <EscrowNotificationPrompt>
     orientation: "vertical"

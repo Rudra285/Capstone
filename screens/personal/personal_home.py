@@ -51,6 +51,9 @@ class CarItemPersonal(MDCardSwipe):
 		self.dialog.open()
 		
 	def close_carlog(self, obj):
+		self.dialog.content_cls.ids.transfer_alert.text = ''
+		self.dialog.content_cls.ids.key.text = ''
+		self.dialog.content_cls.ids.recipient.text = ''
 		self.dialog.dismiss()
 
 	def maintenance_screen(self, app):
@@ -61,28 +64,37 @@ class CarItemPersonal(MDCardSwipe):
 		app.root.current = 'car_maintenance'
     
 	def transfer_personal(self, fulfilled_creation, current_email, home, *args):
-		bdb_root_url = 'https://test.ipdb.io'
-		bdb = BigchainDB(bdb_root_url)
-		URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
-		email_str = self.dialog.content_cls.ids.recipient.text#Subject to change
-		email_list = email_str.split() #Subject to change
-		recipient_public = []
-		for i in email_list:
-			user = requests.get(url = URL, params = {'email': i})
-			dest_data = user.json()
-			
-			recipient_pub = dest_data['Items'][0]["publicKey"]["S"]
-			recipient_public.append(recipient_pub)
-		
-		recipient_public_tup = tuple(recipient_public)
-		
 		sender_pvt = self.dialog.content_cls.ids.key.text
-		owner_public_keys = fulfilled_creation['outputs'][0]['public_keys']
+		email_str = self.dialog.content_cls.ids.recipient.text
 		
-		Process(target = Escrow.verify, args=(Escrow, sender_pvt, owner_public_keys, recipient_public_tup, recipient_public, home, self, fulfilled_creation)).start()
-		
-		
-		self.dialog.dismiss()
+		if sender_pvt != '' and email_str != '':
+			bdb_root_url = 'https://test.ipdb.io'
+			bdb = BigchainDB(bdb_root_url)
+			URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
+			email_list = email_str.split()
+			recipient_public = []
+			for i in email_list:
+				user = requests.get(url = URL, params = {'email': i})
+				dest_data = user.json()
+				if len(dest_data['Items']) != 0:
+					recipient_pub = dest_data['Items'][0]["publicKey"]["S"]
+					recipient_public.append(recipient_pub)
+				else:
+					self.dialog.content_cls.ids.transfer_alert.text = 'Account ' + i + ' was not found'
+			if len(recipient_public) != 0:
+				recipient_public_tup = tuple(recipient_public)
+				
+				owner_public_keys = fulfilled_creation['outputs'][0]['public_keys']
+				
+				Process(target = Escrow.verify, args=(Escrow, sender_pvt, owner_public_keys, recipient_public_tup, recipient_public, home, self, fulfilled_creation)).start()
+				
+				self.dialog.content_cls.ids.transfer_alert.text = ''
+				self.dialog.dismiss()
+			
+			self.dialog.content_cls.ids.key.text = ''
+			self.dialog.content_cls.ids.recipient.text = ''
+		else:
+			self.dialog.content_cls.ids.transfer_alert.text = 'Fill in all the fields'
 
 	def show_alert_dialog(self):
 		cancel_btn = MDFlatButton(text="CANCEL", on_release=self.close_dialog)

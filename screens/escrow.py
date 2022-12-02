@@ -54,38 +54,43 @@ class Escrow():
 	#Only call this for the first time submitting private key
 	def verify(self, private_key, public_list, recipient_tup, recipient_list, home, card, fulfilled_creation):
 		if len(public_list) == 1:
-			encrypt_private = PrivateKey(private_key)
-			decrypted_public = encrypt_private.get_verifying_key().encode().decode()
-			print(public_list, decrypted_public)
-			if decrypted_public == public_list[0]:
-				print("TRUE")
-				#ver.value = True
-				self.transfer(self, fulfilled_creation, recipient_tup, recipient_list, private_key)
-				home.remove_widget(card)
-				self.PrivateKeyList[:] = []
+			try:
+				encrypt_private = PrivateKey(private_key)
+				decrypted_public = encrypt_private.get_verifying_key().encode().decode()
+				print(public_list, decrypted_public)
+				if decrypted_public == public_list[0]:
+					print("TRUE")
+					#ver.value = True
+					self.transfer(self, fulfilled_creation, recipient_tup, recipient_list, private_key)
+					home.remove_widget(card)
+					self.PrivateKeyList[:] = []
+				else:
+					print('1Incorrect Private Key')
+					#return (private_key, True)
 				return
-				#return (private_key, True)
-			
-			print("FALSE")
-			#ver.value = False
-			return
+				#ver.value = False
+			except:
+				print('2Incorrect Private Key')
+				return
 			#return (private_key, False)
 		#verify_private = []
-		
-		encrypt_private = PrivateKey(private_key)
-		check_pub = encrypt_private.get_verifying_key().encode().decode()
-		#If the decoded public key is a owner
-		if check_pub in public_list:
-			self.PrivateKeyList.append(private_key)
-			#self.CardList.append(home)
-			#self.CardList[((len(self.CardList)+1))] = home
-		else:
-			print("NOT TRUE")
-			final_privateKeyList = self.PrivateKeyList
-			PrivateKeyList[:] = []
-			#self.transfer(self, recipient_tup, recipient_list, final_privateKeyList, home, card)
-			#return (final_privateKeyList, False)
-			#ver.value = False
+		try:
+			encrypt_private = PrivateKey(private_key)
+			check_pub = encrypt_private.get_verifying_key().encode().decode()
+			#If the decoded public key is a owner
+			if check_pub in public_list:
+				self.PrivateKeyList.append(private_key)
+				#self.CardList.append(home)
+				#self.CardList[((len(self.CardList)+1))] = home
+			else:
+				print('M1Incorrect Private Key')
+				self.PrivateKeyList[:] = []
+				#self.transfer(self, recipient_tup, recipient_list, final_privateKeyList, home, card)
+				#return (final_privateKeyList, False)
+				#ver.value = False
+				return
+		except:
+			print('M2Incorrect Private Key')
 			return
 		print("PRIVATE", self.PrivateKeyList)
 		print("check", check_pub)

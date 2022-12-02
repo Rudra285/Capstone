@@ -28,13 +28,17 @@ class CarMaintenanceScreen(MDScreen):
 		self.LastScreen = screen
 		bdb_root_url = 'https://test.ipdb.io'
 		bdb = BigchainDB(bdb_root_url)
-    	
+		 
 		query = bdb.metadata.get(search = vin)
 		for entry in query:
 			maint = Maintenance()
 			maint_info = Content()
 			maint.maintenance = entry['metadata']['maintenance']
 			maint_info.date = entry['metadata']['date']
+			company = entry['metadata']['company']
+			company_query = bdb.assets.get(search = company)
+			maint_info.businessName = company
+			maint_info.businessNumber = company_query[0]['data']['Dealership']['Phone']
 			self.ids.content_maintenance.add_widget(MDExpansionPanel(
     			icon = "car-wrench",
     			content=maint_info,

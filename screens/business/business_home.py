@@ -7,6 +7,7 @@ from kivymd.uix.textfield import MDTextField
 from kivymd.uix.button import MDFlatButton
 from bigchaindb_driver import BigchainDB
 from bigchaindb_driver.crypto import generate_keypair
+from bigchaindb_driver.common.crypto import PrivateKey
 import os
 import requests
 from datetime import datetime
@@ -48,6 +49,9 @@ class CarItem(MDCardSwipe):
 		self.dialog.open()
 		
 	def close_carlog(self, obj):
+		self.dialog.content_cls.ids.transfer_alert.text = ''
+		self.dialog.content_cls.ids.key.text = ''
+		self.dialog.content_cls.ids.recipient.text = ''
 		self.dialog.dismiss()
 
 	def maintenance_screen(self, app):
@@ -60,29 +64,38 @@ class CarItem(MDCardSwipe):
 		
 
 	def transfer(self, fulfilled_creation, current_email, home, *args):
-		bdb_root_url = 'https://test.ipdb.io'
-		bdb = BigchainDB(bdb_root_url)
-		URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
-		email_str = self.dialog.content_cls.ids.recipient.text#Subject to change
-		email_list = email_str.split() #Subject to change
-		recipient_public = []
-		for i in email_list:
-			user = requests.get(url = URL, params = {'email': i})
-			dest_data = user.json()
-			
-			recipient_pub = dest_data['Items'][0]["publicKey"]["S"]
-			recipient_public.append(recipient_pub)
-		recipient_public_tup = tuple(recipient_public)
-		
 		sender_pvt = self.dialog.content_cls.ids.key.text
-		owner_public_keys = fulfilled_creation['outputs'][0]['public_keys']
+		email_str = self.dialog.content_cls.ids.recipient.text
 		
-		Process(target = Escrow.verify, args=(Escrow, sender_pvt, owner_public_keys, recipient_public_tup, recipient_public, home, self, fulfilled_creation)).start()
-		
-		
-		self.dialog.dismiss()
-	
-    
+		if sender_pvt != '' and email_str != '':
+			bdb_root_url = 'https://test.ipdb.io'
+			bdb = BigchainDB(bdb_root_url)
+			URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
+			email_list = email_str.split()
+			recipient_public = []
+			for i in email_list:
+				user = requests.get(url = URL, params = {'email': i})
+				dest_data = user.json()
+				if len(dest_data['Items']) != 0:
+					recipient_pub = dest_data['Items'][0]["publicKey"]["S"]
+					recipient_public.append(recipient_pub)
+				else:
+					self.dialog.content_cls.ids.transfer_alert.text = 'Account ' + i + ' was not found'
+			if len(recipient_public) != 0:
+				recipient_public_tup = tuple(recipient_public)
+				
+				owner_public_keys = fulfilled_creation['outputs'][0]['public_keys']
+				
+				Process(target = Escrow.verify, args=(Escrow, sender_pvt, owner_public_keys, recipient_public_tup, recipient_public, home, self, fulfilled_creation)).start()
+				
+				self.dialog.content_cls.ids.transfer_alert.text = ''
+				self.dialog.dismiss()
+			
+			self.dialog.content_cls.ids.key.text = ''
+			self.dialog.content_cls.ids.recipient.text = ''
+		else:
+			self.dialog.content_cls.ids.transfer_alert.text = 'Fill in all the fields'
+			
 class BusinessHomeScreen(MDScreen):
 
 	make_prompt = StringProperty("Make")
@@ -112,49 +125,57 @@ class BusinessHomeScreen(MDScreen):
 		model = self.ids.create_car_model.text
 		year = self.ids.create_car_year.text
 		vin = self.ids.create_car_vin.text
-		email = self.ids.email.text
-		URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
-		vin_check = bdb.assets.get(search = vin)
-		if len(vin_check) == 0:
-			self.ids.creation_alert.text = ''
-			user = requests.get(url = URL, params = {'email': email})
-			data = user.json()
-			recipient_pub = data['Items'][0]["publicKey"]["S"]
-			
-			#Make a car asset that is brand new
-			vehicle_asset = {
-			'data': {
-				'vehicle': {
-					'make': make,
-					'VIN': vin,
-					'model': model,
-					'year': year,
-					'mileage': '0km',
+		if make != '' and model != '' and year != '' and vin != '':
+			email = self.ids.email.text
+			URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
+			vin_check = bdb.assets.get(search = vin)
+			if len(vin_check) == 0:
+				self.ids.creation_alert.text = ''
+				self.ids.create_car_make.text = ''
+				self.ids.create_car_model.text = ''
+				self.ids.create_car_year.text = ''
+				self.ids.create_car_vin.text = ''
+				user = requests.get(url = URL, params = {'email': email})
+				data = user.json()
+				recipient_pub = data['Items'][0]["publicKey"]["S"]
+				
+				#Make a car asset that is brand new
+				vehicle_asset = {
+					'data': {
+						'vehicle': {
+							'make': make,
+							'VIN': vin,
+							'model': model,
+							'year': year,
+							'mileage': '0km',
+						}
+					}
 				}
-			}
-			}
+				
+				prepared_creation_tx_car = bdb.transactions.prepare(
+					operation='CREATE',
+					signers=car_key.public_key,
+					recipients=(recipient_pub),
+					asset=vehicle_asset,
+					metadata= {'owner': recipient_pub}
+				)
+				
+				#fulfill the creation of the car by signing with the cars private key
+				fulfilled_creation_tx_car = bdb.transactions.fulfill(
+					prepared_creation_tx_car,
+					private_keys=car_key.private_key
+				)
+				
+				#send the creation of the car to bigchaindb
+				sent_creation_tx_car = bdb.transactions.send_commit(fulfilled_creation_tx_car)
+				
+				self.add_card(vehicle_asset, fulfilled_creation_tx_car)
 			
-			prepared_creation_tx_car = bdb.transactions.prepare(
-				operation='CREATE',
-				signers=car_key.public_key,
-				recipients=(recipient_pub),
-				asset=vehicle_asset,
-				metadata= {'owner': recipient_pub}
-			)
-			
-			#fulfill the creation of the car by signing with the cars private key
-			fulfilled_creation_tx_car = bdb.transactions.fulfill(
-				prepared_creation_tx_car,
-				private_keys=car_key.private_key
-			)
-			#send the creation of the car to bigchaindb
-			sent_creation_tx_car = bdb.transactions.send_commit(fulfilled_creation_tx_car)
-			#get the txid of the car creation
-			txid_car = fulfilled_creation_tx_car['id']
-			
-			self.add_card(vehicle_asset, fulfilled_creation_tx_car)
+			else:
+				self.ids.creation_alert.text = 'VIN already exists'
+				self.ids.create_car_vin.text = ''
 		else:
-			self.ids.creation_alert.text = 'VIN already exists'
+			self.ids.creation_alert.text = 'Fill in all the fields'
     
 	def add_card(self, vehicle, fulfilled_creation_tx_car):
 		card = CarItem();
@@ -249,84 +270,108 @@ class BusinessHomeScreen(MDScreen):
 		customer_vin = self.ids.vin.text
 		customer_mileage = self.ids.mileage.text
 		maint_data = self.ids.maint_performed.text
-		
-		temp = bdb.assets.get(search = customer_vin)[0]
-		
-		info = bdb.transactions.get(asset_id = temp['id'])
-		car_key = info[0]['inputs'][0]['owners_before'][0]
-		
-		URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
-		
-		email = self.ids.email.text
-		user = requests.get(url = URL, params = {'email': email})
-		data = user.json()
-		
-		pub = data['Items'][0]['publicKey']["S"]
-		
 		pvt = self.ids.user_key.text
-		#WHATS INSIDE THE MAINTAINANCE ASSET?
-		maintenance_asset = {
-			'data': {
-				'vehicle': {
-					'business': 'Ford',
-					'model': 'MKX',
-					'year': '2008',
-					'VIN': customer_vin,
-					'Mileage': '1,000km',
+		if pvt != '' and customer_vin != '' and maint_data != '':
+			temp = bdb.assets.get(search = customer_vin)
+			
+			URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
+			
+			email = self.ids.email.text
+			company = self.ids.account_name.title
+			user = requests.get(url = URL, params = {'email': email})
+			data = user.json()
+			
+			pub = data['Items'][0]['publicKey']["S"]
+			try:
+				encrypt_pvt = PrivateKey(pvt)
+				decrypted_pub = encrypt_pvt.get_verifying_key().encode().decode()
+				if decrypted_pub == pub:
+					valid_key = True
+				else:
+					valid_key = False
+			except:
+				valid_key = False
+				
+			if len(temp) != 0 and valid_key:
+				temp = temp[0]
+				info = bdb.transactions.get(asset_id = temp['id'])
+				car_key = info[0]['inputs'][0]['owners_before'][0]
+				
+				
+				
+				#TODO:WHATS INSIDE THE MAINTAINANCE ASSET?
+				maintenance_asset = {
+					'data': {
+						'vehicle': {
+							'business': 'Ford',
+							'model': 'MKX',
+							'year': '2008',
+							'VIN': customer_vin,
+							'Mileage': '1,000km',
+						}
+					}
 				}
-			}
-		}
-		
-		#Prepare the creation of the maintenance owned by the mechanic shop
-		prepared_creation_tx_maintenance = bdb.transactions.prepare(
-		operation='CREATE',
-		signers=pub,
-		#asset=maintenance_asset,
-		metadata= {'maintenance': maint_data, 'car_vin': customer_vin, 'date': dateStr}
-		)
-		
-		#fulfill the creation of the maintenance owned by the mechanic shop
-		fulfilled_creation_tx_maintenance = bdb.transactions.fulfill(
-			prepared_creation_tx_maintenance,
-			private_keys=pvt
-		)
-		
-		#send the creation of the maintenance to bigchaindb
-		sent_creation_tx_maintenance = bdb.transactions.send_commit(fulfilled_creation_tx_maintenance)
-		
-		#get the txid of the maintenance creation
-		txid_maintenance = fulfilled_creation_tx_maintenance['id']
-		
-		creation_tx_maintenance = fulfilled_creation_tx_maintenance
-		
-		asset_id_maintenance = creation_tx_maintenance['id']
-		
-		transfer_asset_maintenance = {
-			'id': asset_id_maintenance,
-		}
-		
-		output_index = 0
-		output = creation_tx_maintenance['outputs'][output_index]
-		
-		transfer_input_maintenance = {
-			'fulfillment': output['condition']['details'],
-			'fulfills': {
-				'output_index': output_index,
-				'transaction_id': creation_tx_maintenance['id']
-			},
-			'owners_before': output['public_keys']
-		}
-		
-		prepared_transfer_tx_maintenance = bdb.transactions.prepare(
-			operation='TRANSFER',
-			asset=transfer_asset_maintenance,
-			inputs=transfer_input_maintenance,
-			recipients=car_key,
-		)
-		
-		fulfilled_transfer_tx_maintenance = bdb.transactions.fulfill(
-			prepared_transfer_tx_maintenance,
-			private_keys=pvt,
-		)
-		
-		sent_transfer_tx_maintenance = bdb.transactions.send_commit(fulfilled_transfer_tx_maintenance)
+				
+				#Prepare the creation of the maintenance owned by the mechanic shop
+				prepared_creation_tx_maintenance = bdb.transactions.prepare(
+					operation='CREATE',
+					signers=pub,
+					#asset=maintenance_asset,
+					metadata= {'maintenance': maint_data, 'car_vin': customer_vin, 'date': dateStr, 'company': company}
+				)
+				
+				#fulfill the creation of the maintenance owned by the mechanic shop
+				fulfilled_creation_tx_maintenance = bdb.transactions.fulfill(
+					prepared_creation_tx_maintenance,
+					private_keys=pvt
+				)
+				
+				#send the creation of the maintenance to bigchaindb
+				sent_creation_tx_maintenance = bdb.transactions.send_commit(fulfilled_creation_tx_maintenance)
+				
+				#get the txid of the maintenance creation
+				txid_maintenance = fulfilled_creation_tx_maintenance['id']
+				
+				creation_tx_maintenance = fulfilled_creation_tx_maintenance
+				
+				asset_id_maintenance = creation_tx_maintenance['id']
+				
+				transfer_asset_maintenance = {
+					'id': asset_id_maintenance,
+				}
+				
+				output_index = 0
+				output = creation_tx_maintenance['outputs'][output_index]
+				
+				transfer_input_maintenance = {
+					'fulfillment': output['condition']['details'],
+					'fulfills': {
+						'output_index': output_index,
+						'transaction_id': creation_tx_maintenance['id']
+					},
+					'owners_before': output['public_keys']
+				}
+				
+				prepared_transfer_tx_maintenance = bdb.transactions.prepare(
+					operation='TRANSFER',
+					asset=transfer_asset_maintenance,
+					inputs=transfer_input_maintenance,
+					recipients=car_key,
+				)
+				
+				fulfilled_transfer_tx_maintenance = bdb.transactions.fulfill(
+					prepared_transfer_tx_maintenance,
+					private_keys=pvt,
+				)
+				
+				sent_transfer_tx_maintenance = bdb.transactions.send_commit(fulfilled_transfer_tx_maintenance)
+				self.ids.maint_alert.text = ''
+				self.ids.vin.text = ''
+				self.ids.maint_performed.text = ''
+				self.ids.user_key.text = ''
+			else:
+				self.ids.maint_alert.text = 'Incorrect Vin or Private Key'
+				self.ids.vin.text = ''
+				self.ids.user_key.text = ''
+		else:
+			self.ids.maint_alert.text = 'Fill in all the fields'
