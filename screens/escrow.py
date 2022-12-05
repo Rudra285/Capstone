@@ -2,17 +2,47 @@ import time
 from bigchaindb_driver.common.crypto import PrivateKey
 from multiprocessing import Manager
 from bigchaindb_driver import BigchainDB
-#from screens.business.business_home import CardItem
-#from .personal.personal_home import PersonalHomeScreen
+from datetime import datetime
+
 class Escrow():
 	manager = Manager()
 	PrivateKeyList = manager.list()
 	#CardList = manager.dict()
-	
-	def transfer(self, fulfilled_creation, recipient_tup, recipient_list, all_sender_pvt):
+	def log(self, public_sign, private_key, owner_names, vin):
+		bdb_root_url = 'https://test.ipdb.io'
+		bdb = BigchainDB(bdb_root_url)
+		
+		dateTimeObj = datetime.now()
+		localtime = dateTimeObj.strftime("%b/%d/%Y %I:%M:%S %p")
+		print(vin)
+		carQuery = bdb.assets.get(search = vin)
+		print(carQuery)
+		carQuery = carQuery[0]
+		info = bdb.transactions.get(asset_id = carQuery['id'])
+		car_key = info[0]['inputs'][0]['owners_before'][0]
+		maint_data = 'Transfer Vehicle Asset'
+		
+		prepared_creation_tx_maintenance = bdb.transactions.prepare(
+			operation='CREATE',
+			signers=public_sign,
+			recipients=car_key,
+			metadata= {'maintenance': maint_data, 'date': localtime, 'vin': vin, 'type': 'transfer', 'owner': owner_names}
+		)
+
+		#fulfill the creation of the maintenance owned by the mechanic shop
+		fulfilled_creation_tx_maintenance = bdb.transactions.fulfill(
+			prepared_creation_tx_maintenance,
+			private_keys=private_key
+		)
+		#send the creation of the maintenance to bigchaindb
+		sent_creation_tx_maintenance = bdb.transactions.send_commit(fulfilled_creation_tx_maintenance)
+		
+	def transfer(self, fulfilled_creation, recipient_tup, recipient_list, all_sender_pvt, recipient_names):
+		print('I enter')
 		bdb_root_url = 'https://test.ipdb.io'
 		bdb = BigchainDB(bdb_root_url)
 		creation_tx = fulfilled_creation
+		print(creation_tx)
 		if(creation_tx['operation'] == 'CREATE'):
 			asset_id = creation_tx['id']
 		elif(creation_tx['operation'] == 'TRANSFER'):
@@ -32,28 +62,28 @@ class Escrow():
 			},
 			'owners_before': output['public_keys']
 		}
-		
+		print('Here')
 		#prepare the transfer of car
 		prepared_transfer = bdb.transactions.prepare(
 			operation='TRANSFER',
 			asset=transfer_asset,
 			inputs=transfer_input,
 			recipients=recipient_tup,
-			metadata = {'owner': recipient_list}
+			metadata = {'owner_key': recipient_list, 'owner_name': recipient_names}
 		)
-		
+		print('Here2')
 		fulfilled_transfer = bdb.transactions.fulfill(
 			prepared_transfer,
 			private_keys=all_sender_pvt,
 		)
-		
+		print('ger')
+		print(fulfilled_transfer)
 		#send the transfer of the car to joe on the bigchaindb network
 		sent_transfer = bdb.transactions.send_commit(fulfilled_transfer)
-		
 		#home.remove_widget(card)
 	
 	#Only call this for the first time submitting private key
-	def verify(self, private_key, public_list, recipient_tup, recipient_list, home, card, fulfilled_creation):
+	def verify(self, private_key, public_list, recipient_tup, recipient_list, home, card, fulfilled_creation, recipient_names, vin):
 		
 		if len(public_list) == 1:
 			try:
@@ -63,18 +93,19 @@ class Escrow():
 				if decrypted_public == public_list[0]:
 					print("TRUE")
 					#ver.value = True
-					self.transfer(self, fulfilled_creation, recipient_tup, recipient_list, private_key)
+					self.transfer(self, fulfilled_creation, recipient_tup, recipient_list, private_key, recipient_names)
+					self.log(self, public_list[0], private_key, recipient_names, vin)
 					#print(card)
 					card.remove_card()
 					self.PrivateKeyList[:] = []
 				else:
 					print('1Incorrect Private Key')
 					#return (private_key, True)
-				return
+				
 				#ver.value = False
 			except:
 				print('2Incorrect Private Key')
-				return
+			return
 			#return (private_key, False)
 		#verify_private = []
 		try:
@@ -88,9 +119,6 @@ class Escrow():
 			else:
 				print('M1Incorrect Private Key')
 				self.PrivateKeyList[:] = []
-				#self.transfer(self, recipient_tup, recipient_list, final_privateKeyList, home, card)
-				#return (final_privateKeyList, False)
-				#ver.value = False
 				return
 		except:
 			print('M2Incorrect Private Key')
@@ -117,10 +145,6 @@ class Escrow():
 		#Only notify other owners the first time verify is called
 		
 		if len(self.PrivateKeyList) == 1:
-			remaining = public_list.copy()
-			if check_pub in remaining:
-				remaining.remove(check_pub)
-			#TODO:notify remaining keys
 			#call escrow
 			
 			result = start_escrow(public_list)
@@ -132,7 +156,10 @@ class Escrow():
 				print("WROKS")
 				
 				final_privateKeyList = self.PrivateKeyList.__deepcopy__({})
-				self.transfer(self, fulfilled_creation, recipient_tup, recipient_list, final_privateKeyList)
+				if public_list[0] == check_pub:
+					history_pvt = private_key
+				self.transfer(self, fulfilled_creation, recipient_tup, recipient_list, final_privateKeyList ,recipient_names)
+				self.log(self, public_list[0], history_pvt, recipient_names, vin)
 				self.PrivateKeyList[:] = []
 			else:
 				print("NO")

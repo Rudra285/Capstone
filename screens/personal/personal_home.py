@@ -73,20 +73,25 @@ class CarItemPersonal(MDCardSwipe):
 			URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
 			email_list = email_str.split()
 			recipient_public = []
+			recipient_names = []
 			for i in email_list:
 				user = requests.get(url = URL, params = {'email': i})
 				dest_data = user.json()
 				if len(dest_data['Items']) != 0:
 					recipient_pub = dest_data['Items'][0]["publicKey"]["S"]
+					dest_name = dest_data['Items'][0]["name"]["S"]
 					recipient_public.append(recipient_pub)
+					recipient_names.append(dest_name)
 				else:
 					self.dialog.content_cls.ids.transfer_alert.text = 'Account ' + i + ' was not found'
+
 			if len(recipient_public) != 0:
 				recipient_public_tup = tuple(recipient_public)
 				
 				owner_public_keys = fulfilled_creation['outputs'][0]['public_keys']
-				
-				Process(target = Escrow.verify, args=(Escrow, sender_pvt, owner_public_keys, recipient_public_tup, recipient_public, home, self, fulfilled_creation)).start()
+				car_VIN = self.ids.name_personal.tertiary_text
+				print(car_VIN)
+				Process(target = Escrow.verify, args=(Escrow, sender_pvt, owner_public_keys, recipient_public_tup, recipient_public, home, self, fulfilled_creation, recipient_names, car_VIN)).start()
 				
 				self.dialog.content_cls.ids.transfer_alert.text = ''
 				self.dialog.dismiss()
@@ -148,7 +153,7 @@ class PersonalHomeScreen(MDScreen):
 			if temp[-1]['operation'] == 'TRANSFER' and (temp[-1]['asset']['id'] not in already_in):
 				check = bdb.transactions.get(asset_id=temp[-1]['asset']['id'])
     			
-				if(pub in check[-1]['metadata']['owner']):
+				if(pub in check[-1]['metadata']['owner_key']):
 					already_in.append(check[-1]['asset']['id'])
 					vehicle = check[0]['asset']
 					self.add_card(vehicle, temp[-1])	
