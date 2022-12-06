@@ -59,7 +59,11 @@ class CarItemPersonal(MDCardSwipe):
 		app.root.get_screen('car_maintenance').load(car_VIN, self.screen)
 		self.scrollview.clear_widgets()
 		app.root.current = 'car_maintenance'
-    
+	
+	def remove_card(self):
+		print(self.ids.name.tertiary_text)
+		self.scrollview.remove_widget(self)
+	
 	def transfer_personal(self, fulfilled_creation, current_email, home, *args):
 		sender_pvt = self.dialog.content_cls.ids.key.text
 		email_str = self.dialog.content_cls.ids.recipient.text
@@ -87,8 +91,8 @@ class CarItemPersonal(MDCardSwipe):
 				
 				owner_public_keys = fulfilled_creation['outputs'][0]['public_keys']
 				car_VIN = self.ids.name_personal.tertiary_text
-				print(car_VIN)
-				Process(target = Escrow.verify, args=(Escrow, sender_pvt, owner_public_keys, recipient_public_tup, recipient_public, home, self, fulfilled_creation, recipient_names, car_VIN)).start()
+				
+				Process(target = Escrow.verify, args=(Escrow, sender_pvt, owner_public_keys, recipient_public_tup, recipient_public, self, fulfilled_creation, recipient_names, car_VIN)).start()
 				
 				self.dialog.content_cls.ids.transfer_alert.text = ''
 				self.dialog.dismiss()

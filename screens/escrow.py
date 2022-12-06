@@ -14,9 +14,8 @@ class Escrow():
 		
 		dateTimeObj = datetime.now()
 		localtime = dateTimeObj.strftime("%b/%d/%Y %I:%M:%S %p")
-		print(vin)
+		
 		carQuery = bdb.assets.get(search = vin)
-		print(carQuery)
 		carQuery = carQuery[0]
 		info = bdb.transactions.get(asset_id = carQuery['id'])
 		car_key = info[0]['inputs'][0]['owners_before'][0]
@@ -82,7 +81,7 @@ class Escrow():
 		#home.remove_widget(card)
 	
 	#Only call this for the first time submitting private key
-	def verify(self, private_key, public_list, recipient_tup, recipient_list, home, card, fulfilled_creation, recipient_names, vin):
+	def verify(self, private_key, public_list, recipient_tup, recipient_list, card, fulfilled_creation, recipient_names, vin):
 		
 		if len(public_list) == 1:
 			try:
@@ -94,7 +93,7 @@ class Escrow():
 					#ver.value = True
 					self.transfer(self, fulfilled_creation, recipient_tup, recipient_list, private_key, recipient_names)
 					self.log(self, public_list[0], private_key, recipient_names, vin)
-
+					
 					card.remove_card()
 					self.PrivateKeyList[:] = []
 				else:

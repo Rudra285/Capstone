@@ -63,7 +63,9 @@ class CarItem(MDCardSwipe):
 		app.root.current = 'car_maintenance'
 		
 	def remove_card(self):
+		print(self.ids.name.tertiary_text)
 		self.scrollview.remove_widget(self)
+		
 	def transfer(self, fulfilled_creation, current_email, home, *args):
 		sender_pvt = self.dialog.content_cls.ids.key.text
 		email_str = self.dialog.content_cls.ids.recipient.text
@@ -85,14 +87,13 @@ class CarItem(MDCardSwipe):
 					recipient_names.append(dest_name)
 				else:
 					self.dialog.content_cls.ids.transfer_alert.text = 'Account ' + i + ' was not found'
-			print(recipient_names)
+
 			if len(recipient_public) != 0:
 				recipient_public_tup = tuple(recipient_public)
 				
 				owner_public_keys = fulfilled_creation['outputs'][0]['public_keys']
 				car_VIN = self.ids.name.tertiary_text
-				print(car_VIN)
-				Process(target = Escrow.verify, args=(Escrow, sender_pvt, owner_public_keys, recipient_public_tup, recipient_public, home, self, fulfilled_creation, recipient_names, car_VIN)).start()
+				Process(target = Escrow.verify, args=(Escrow, sender_pvt, owner_public_keys, recipient_public_tup, recipient_public, self, fulfilled_creation, recipient_names, car_VIN)).start()
 				#self.remove_card()
 				self.dialog.content_cls.ids.transfer_alert.text = ''
 				self.dialog.dismiss()
@@ -212,7 +213,6 @@ class BusinessHomeScreen(MDScreen):
 		card = CarItem();
 		card.screen = self.name
 		card.scrollview = self.ids.content
-		print(card.scrollview)
 		card.ids.name.text = vehicle['data']['vehicle']['make']
 		card.ids.name.secondary_text = vehicle['data']['vehicle']['model']
 		card.ids.name.tertiary_text = vehicle['data']['vehicle']['VIN']
