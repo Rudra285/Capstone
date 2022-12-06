@@ -16,76 +16,99 @@
             pos_hint: {"center_x": .5}
             size: "300dp", "200dp"
             allow_stretch: True
+
+        MDFloatLayout:
+            id: business_create_account_grid
+
+            MDLabel:
+                text: "Create your Business Account below"
+                theme_text_color: "Custom"
+                font_style: "H6"
+                text_color: 76/255, 175/255, 80/255, 1
+                halign: "center"
+                pos_hint: {"center_y": 0.9}
+
+            MDTextField:
+                id: business_create_email
+                hint_text: root.email_prompt
+                helper_text_mode: "persistent"
+                icon_left: "email"
+                pos_hint: {"center_x": 0.5, "center_y": 0.7}
+                size_hint_x: 0.6
+
+            MDTextField:
+                id: business_create_password
+                hint_text: root.password_prompt
+                helper_text_mode: "persistent"
+                password: True
+                icon_left: "key-variant"
+                pos_hint: {"center_x": 0.5, "center_y": 0.52}
+                size_hint_x: 0.6
+
+            MDTextField:
+                id: business_create_name
+                hint_text: root.business_name
+                helper_text_mode: "persistent"
+                icon_left: "office-building"
+                pos_hint: {"center_x": 0.5, "center_y": 0.34}
+                size_hint_x: 0.6
+
+            MDTextField:
+                id: business_create_phone
+                hint_text: root.phone_prompt
+                helper_text_mode: "persistent"
+                icon_left: "cellphone"
+                pos_hint: {"center_x": 0.5, "center_y": 0.16}
+                size_hint_x: 0.6
+
+            MDLabel:
+            	id: create_status
+            	halign: "center"
+            	theme_text_color: "Error"
+            	bold: True
+                pos_hint: {"center_y": 0.1}
+
+        
 	
-        MDScrollView:
-            bar_color: [1,1,1,1]
-            bar_inactive_color: [1,1,1,1]
-            bar_width: 4
+        # MDScrollView:
+        #     bar_color: [1,1,1,1]
+        #     bar_inactive_color: [1,1,1,1]
+        #     bar_width: 4
 
-            MDGridLayout:
-                id: business_create_account_grid
-                cols: 1
-                size_hint_y: None
-                height: self.minimum_height
-                padding: "60dp"
+            # MDGridLayout:
+            #     id: business_create_account_grid
+            #     cols: 1
+            #     size_hint_y: None
+            #     height: self.minimum_height
+            #     padding: "60dp"
 
-                MDTextField:
-                    id: business_create_email
-                    hint_text: root.email_prompt
-                    helper_text_mode: "persistent"
-                    icon_left: "email"
-                    pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            #     MDTextField:
+            #         id: business_create_email
+            #         hint_text: root.email_prompt
+            #         helper_text_mode: "persistent"
+            #         icon_left: "email"
+            #         pos_hint: {"center_x": 0.5, "center_y": 0.5}
 
-                MDTextField:
-                    id: business_create_password
-                    hint_text: root.password_prompt
-                    helper_text_mode: "persistent"
-                    password: True
-                    icon_left: "key-variant"
+            #     MDTextField:
+            #         id: business_create_password
+            #         hint_text: root.password_prompt
+            #         helper_text_mode: "persistent"
+            #         password: True
+            #         icon_left: "key-variant"
 
 
-                MDTextField:
-                    id: business_create_name
-                    hint_text: root.business_name
-                    helper_text_mode: "persistent"
-                    icon_left: "account"
-                    pos_hint: {"center_x": 0.5, "center_y": 0.4}
+            #     MDTextField:
+            #         id: business_create_name
+            #         hint_text: root.business_name
+            #         helper_text_mode: "persistent"
+            #         icon_left: "account"
+            #         pos_hint: {"center_x": 0.5, "center_y": 0.4}
 
-                MDTextField:
-                    id: business_create_phone
-                    hint_text: root.phone_prompt
-                    helper_text_mode: "persistent"
-                    icon_left: "cellphone"
-
-                MDTextField:
-                    id: business_create_street
-                    hint_text: root.street_prompt
-                    helper_text_mode: "persistent"
-                    icon_left: "google-street-view"
-
-                MDTextField:
-                    id: business_create_city
-                    hint_text: root.city_prompt
-                    helper_text_mode: "persistent"
-                    icon_left: "city"
-
-                MDTextField:
-                    id: business_create_prov
-                    hint_text: root.prov_prompt
-                    helper_text_mode: "persistent"
-                    icon_left: "google-maps"
-
-                MDTextField:
-                    id: business_create_country
-                    hint_text: root.country_prompt
-                    helper_text_mode: "persistent"
-                    icon_left: "google-maps"    
-
-                MDTextField:
-                    id: business_create_postal
-                    hint_text: root.postal_prompt
-                    helper_text_mode: "persistent"
-                    icon_left: "google-maps" 
+            #     MDTextField:
+            #         id: business_create_phone
+            #         hint_text: root.phone_prompt
+            #         helper_text_mode: "persistent"
+            #         icon_left: "cellphone"
 
         MDBottomAppBar:
 

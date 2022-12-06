@@ -31,7 +31,7 @@ class CarItemPersonal(MDCardSwipe):
 	def transfer_dialog(self, fulfilled_tx_car, current_email, home, *args):
 		if not self.dialog:
 			self.dialog = MDDialog(
-                title="Transfer Vehicle:",
+                title="Transfer Vehicle",
                 type="custom",
                 content_cls=TransferPersonalPrompt(),
                 buttons=[

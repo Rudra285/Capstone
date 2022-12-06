@@ -12,7 +12,7 @@
         tertiary_text: root.mileage
 
         IconLeftWidget:
-            icon: 'office-building'
+            icon: 'account'
 
 <CarMaintenanceScreen>:
     name: 'car_maintenance'
@@ -22,16 +22,20 @@
 
         MDTopAppBar:
             elevation: 4
-            title: app.title
+            title: "Vehicle History"
             #on_action_button: root.goBack()
             left_action_items: [["arrow-left-bold-outline", lambda x: root.goBack(root, app)]]
             right_action_items: [["export", lambda x: root.export_pdf()]]            
 
-        FitImage:
+        Image:
             source: "assets/small_logo.png"
-            radius: root.radius
-            size_hint_x: None
-            width: root.height
+            # radius: root.radius
+            # size_hint_x: None
+            # width: root.height
+            size_hint: None, None
+            pos_hint: {"center_x": .5}
+            size: "300dp", "200dp"
+            allow_stretch: True
 
         MDScrollView:
 

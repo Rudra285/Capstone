@@ -50,22 +50,8 @@ class BusinessCreateAccountScreen(MDScreen):
         	#Input for the business name
 		name = self.ids.business_create_name.text
 
-        	#Input for the business street address
-		street = self.ids.business_create_street.text
-
-        	#Input for the business city location
-		city = self.ids.business_create_city.text
-
-        	#Input for the business province location
-		prov = self.ids.business_create_prov.text
-
-        	#Input for the business country location
-		country = self.ids.business_create_country.text
-
         	#Input for the business phone number
 		phone = self.ids.business_create_phone.text
-		
-		postal = self.ids.business_create_postal.text
 		
         	#Generate Keypair
 		user_key = generate_keypair()
@@ -73,7 +59,7 @@ class BusinessCreateAccountScreen(MDScreen):
 		#POST user data to "users" database
 		URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
 		
-		if email != '' and password != '' and name != '' and street != '' and city != '' and prov != '' and country != '' and phone != '' and postal != '':
+		if email != '' and password != '' and name != '' and phone != '':
 			user = requests.get(url = URL, params = {'email': email})
 			data = user.json()
 			
@@ -101,11 +87,6 @@ class BusinessCreateAccountScreen(MDScreen):
 					'data': {
 						'Dealership': {
 							'Name': name,
-							'Street': street,
-							'Country': country,
-							'Province': prov,
-							'City': city,
-							'Postal Code': postal,
 							'Phone': phone
 						}
 					}
@@ -153,12 +134,8 @@ class BusinessCreateAccountScreen(MDScreen):
 			self.ids.business_create_email.text = ''
 			self.ids.business_create_password.text = ''
 			self.ids.business_create_name.text = ''
-			self.ids.business_create_street.text = ''
-			self.ids.business_create_city.text = ''
-			self.ids.business_create_prov.text = ''
-			self.ids.business_create_country.text = ''
 			self.ids.business_create_phone.text = ''
-			self.ids.business_create_postal.text = ''
+
 		else:
 			print('Fill in all the fields')
 		

@@ -5,6 +5,9 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.button import MDFlatButton
+from kivy.animation import Animation
+from kivymd.uix.snackbar import Snackbar
+from kivy.metrics import dp
 from bigchaindb_driver import BigchainDB
 from bigchaindb_driver.crypto import generate_keypair
 from bigchaindb_driver.common.crypto import PrivateKey
@@ -13,6 +16,7 @@ from datetime import datetime
 from  kivymd.uix.card import MDCardSwipe
 from screens.escrow import Escrow
 from multiprocessing import Process
+
 
 class TransferPrompt(MDBoxLayout):
 	pass
@@ -32,7 +36,7 @@ class CarItem(MDCardSwipe):
 	def transfer_dialog(self, fulfilled_creation_tx_car, current_email, home, *args):
 		if not self.dialog:
 			self.dialog = MDDialog(
-                title="Transfer Vehicle:",
+                title="Transfer Vehicle",
                 type="custom",
                 content_cls=TransferPrompt(),
                 buttons=[
@@ -122,6 +126,27 @@ class BusinessHomeScreen(MDScreen):
 	def __init__(self, **kwargs):
 		super(BusinessHomeScreen, self).__init__(**kwargs)
 		Clock.schedule_once(self.on_start)
+		self.snackbar = None
+		self._interval = 0
+	
+	def wait_interval_car_created(self, interval):
+		self._interval += interval
+		if self._interval > self.snackbar.duration + 0.5:
+			anim = Animation(y=dp(10), d=.2)
+			anim.start(self.ids.submit_icon_new_vehicle)
+			Clock.unschedule(self.wait_interval_car_created)
+			self._interval = 0
+			self.snackbar = None
+
+	def snackbar_show_car_created(self):
+		if not self.snackbar:
+			self.snackbar = Snackbar(text="Vehicle Created Successfully!")
+			self.snackbar.open()
+			anim = Animation(y=dp(72), d=.2)
+			anim.bind(on_complete=lambda *args: Clock.schedule_interval(
+                self.wait_interval_car_created, 0))
+			anim.start(self.ids.submit_icon_new_vehicle)
+
 
 	def onCreateVehicleClick(self):
 		car_key = generate_keypair()
@@ -166,6 +191,8 @@ class BusinessHomeScreen(MDScreen):
 					}
 				}
 
+				self.snackbar_show_car_created()
+
 				prepared_creation_tx_car = bdb.transactions.prepare(
 					operation='CREATE',
 					signers=car_key.public_key,
@@ -202,7 +229,8 @@ class BusinessHomeScreen(MDScreen):
 				
 				#send the creation of the maintenance to bigchaindb
 				sent_creation_tx_maintenance = bdb.transactions.send_commit(fulfilled_creation_tx_maintenance)
-			
+
+
 			else:
 				self.ids.creation_alert.text = 'VIN already exists'
 				self.ids.create_car_vin.text = ''
@@ -252,8 +280,27 @@ class BusinessHomeScreen(MDScreen):
 						self.add_card(vehicle, temp[-1])
 				
 
+	
 	def on_start(self, *args):
 		pass
+
+	def wait_interval_form_submitted(self, interval):
+		self._interval += interval
+		if self._interval > self.snackbar.duration + 0.5:
+			anim = Animation(y=dp(10), d=.2)
+			anim.start(self.ids.submit_form)
+			Clock.unschedule(self.wait_interval_form_submitted)
+			self._interval = 0
+			self.snackbar = None
+
+	def snackbar_show_form_submitted(self):
+		if not self.snackbar:
+			self.snackbar = Snackbar(text="Maintenance Submitted Successfully!")
+			self.snackbar.open()
+			anim = Animation(y=dp(72), d=.2)
+			anim.bind(on_complete=lambda *args: Clock.schedule_interval(
+                self.wait_interval_form_submitted, 0))
+			anim.start(self.ids.submit_form)
 
 	def clock_next(self, app):
 		Clock.schedule_once(self.next)
@@ -264,17 +311,15 @@ class BusinessHomeScreen(MDScreen):
     	
 	def next(self):
 		self.ids.form.load_next(mode="next")
-		self.ids.customer_label.text_color=(76/255, 175/255, 80/255, 1)
+		self.ids.maint_label.text_color=(76/255, 175/255, 80/255, 1)
 		self.ids.progress_zero.value = 100
-		self.ids.customer_icon.text_color = (76/255, 175/255, 80/255, 1)
-		self.ids.customer_icon.icon = "check-decagram"
+		self.ids.maint_icon.text_color = (76/255, 175/255, 80/255, 1)
 
 	def previous(self):
 		self.ids.form.load_previous()
-		self.ids.customer_label.text_color=(1, 1, 1, 1)
-		self.ids.progress_zero.value = 0
-		self.ids.customer_icon.icon = "numeric-1-circle"
-		self.ids.customer_icon.text_color = (1, 1, 1, 1)
+		self.ids.maint_label.text_color=(1, 1, 1, 1)
+		self.ids.progress_zero.value = 50
+		self.ids.maint_icon.text_color = (1, 1, 1, 1)
 	
 	def submit(self):
 		bdb_root_url = 'https://test.ipdb.io'  # Use YOUR BigchainDB Root URL here
@@ -314,6 +359,7 @@ class BusinessHomeScreen(MDScreen):
 				info = bdb.transactions.get(asset_id = temp['id'])
 				car_key = info[0]['inputs'][0]['owners_before'][0]
 				owners = info[-1]['metadata']['owner_name']
+				self.snackbar_show_form_submitted()
 				
 				#Prepare the creation of the maintenance owned by the mechanic shop
 				prepared_creation_tx_maintenance = bdb.transactions.prepare(

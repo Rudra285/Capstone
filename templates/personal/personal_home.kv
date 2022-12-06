@@ -21,54 +21,40 @@
             ripple_effect: True
             on_release: root.maintenance_screen(app)
 
-            IconLeftWidget:
-                icon: "car"
+            ImageLeftWidget:
+                source: "assets/vehicleIcon.png"
 
 
 <PersonalHomeScreen>:
     name: 'personal_home_screen'
     
     MDBoxLayout:
-        MDLabel:
-     	   id: email
+        orientation: "vertical"
 
-    MDBottomNavigation:
+        MDTopAppBar:
+            id: account_name
+            elevation: 4
+            right_action_items: [["logout", lambda x: root.logout(self, app)]] 
 
-        MDBottomNavigationItem:
-            name: "vehicles"
-            text: 'Vehicles Owned'
-            icon: 'car-search'
+        Image:
+            id: email
+            source: "assets/logo.png"
+            size_hint: None, None
+            pos_hint: {"center_x": .5}
+            size: "300dp", "200dp"
+            allow_stretch: True
 
-            MDBoxLayout:
-                orientation: "vertical"
+        MDScrollView:
+            id: personal_scroll
+            scroll_timeout: 100
 
-                MDTopAppBar:
-                    id: account_name
-                    elevation: 4
+            MDList:
+                id: content_personal
+                padding: 0
 
-                FitImage:
-                    source: "assets/small_logo.png"
-                    radius: root.radius
-                    size_hint_x: None
-                    width: root.height
-
-                MDScrollView:
-                    id: personal_scroll
-                    scroll_timeout: 100
-
-                    MDList:
-                        id: content_personal
-                        padding: 0
-
-        MDBottomNavigationItem:
-            name: "logout"
-            text: 'Logout'
-            icon: 'logout'
-            on_tab_press: root.logout(root, app)
 
 <TransferPersonalPrompt>
     orientation: "vertical"
-    spacing: "12dp"
     size_hint_y: None
     height: "120dp"
 
