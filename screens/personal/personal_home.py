@@ -17,9 +17,6 @@ from multiprocessing import Process
 class TransferPersonalPrompt(MDBoxLayout):
 	pass
 
-class EscrowNotificationPrompt(MDBoxLayout):
-	pass
-
 class CarItemPersonal(MDCardSwipe):
 	make = StringProperty()
 	model = StringProperty()
@@ -100,21 +97,6 @@ class CarItemPersonal(MDCardSwipe):
 			self.dialog.content_cls.ids.recipient.text = ''
 		else:
 			self.dialog.content_cls.ids.transfer_alert.text = 'Fill in all the fields'
-
-	def show_alert_dialog(self):
-		cancel_btn = MDFlatButton(text="CANCEL", on_release=self.close_dialog)
-		enter_btn = MDFlatButton(text="ENTER") #on release close the dialog box and send the private key to a variable
-
-		if not self.dialog:
-			self.dialog = MDDialog(
-                title="Private Key Required:",
-                text="",
-				content_cls=EscrowNotificationPrompt(),
-                buttons=[
-                    cancel_btn, enter_btn
-                ],
-            )
-		self.dialog.open()
 
 class PersonalHomeScreen(MDScreen):
 

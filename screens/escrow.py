@@ -38,11 +38,11 @@ class Escrow():
 		sent_creation_tx_maintenance = bdb.transactions.send_commit(fulfilled_creation_tx_maintenance)
 		
 	def transfer(self, fulfilled_creation, recipient_tup, recipient_list, all_sender_pvt, recipient_names):
-		print('I enter')
+
 		bdb_root_url = 'https://test.ipdb.io'
 		bdb = BigchainDB(bdb_root_url)
 		creation_tx = fulfilled_creation
-		print(creation_tx)
+
 		if(creation_tx['operation'] == 'CREATE'):
 			asset_id = creation_tx['id']
 		elif(creation_tx['operation'] == 'TRANSFER'):
@@ -62,7 +62,7 @@ class Escrow():
 			},
 			'owners_before': output['public_keys']
 		}
-		print('Here')
+
 		#prepare the transfer of car
 		prepared_transfer = bdb.transactions.prepare(
 			operation='TRANSFER',
@@ -71,13 +71,12 @@ class Escrow():
 			recipients=recipient_tup,
 			metadata = {'owner_key': recipient_list, 'owner_name': recipient_names}
 		)
-		print('Here2')
+
 		fulfilled_transfer = bdb.transactions.fulfill(
 			prepared_transfer,
 			private_keys=all_sender_pvt,
 		)
-		print('ger')
-		print(fulfilled_transfer)
+
 		#send the transfer of the car to joe on the bigchaindb network
 		sent_transfer = bdb.transactions.send_commit(fulfilled_transfer)
 		#home.remove_widget(card)
@@ -95,7 +94,7 @@ class Escrow():
 					#ver.value = True
 					self.transfer(self, fulfilled_creation, recipient_tup, recipient_list, private_key, recipient_names)
 					self.log(self, public_list[0], private_key, recipient_names, vin)
-					#print(card)
+
 					card.remove_card()
 					self.PrivateKeyList[:] = []
 				else:

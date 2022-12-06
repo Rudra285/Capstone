@@ -61,18 +61,6 @@
                         padding: 0
 
         MDBottomNavigationItem:
-            name: "notifications"
-            text: 'Notifications'
-            icon: 'email'
-
-            MDBoxLayout:
-                orientation: "vertical"
-
-                MDLabel:
-                    text: "There are no notifications at this time"
-                    halign: "center"
-
-        MDBottomNavigationItem:
             name: "logout"
             text: 'Logout'
             icon: 'logout'
@@ -101,14 +89,3 @@
     	theme_text_color: "Error"
     	bold: True
     	pos_hint: {"center_y": 0.3}
-
-<EscrowNotificationPrompt>
-    orientation: "vertical"
-    spacing: "12dp"
-    size_hint_y: None
-    height: "120dp"
-        
-    MDTextField:
-    	id: priv_key
-    	hint_text: "Enter Your Private Key"
-        icon_left: "key-variant"

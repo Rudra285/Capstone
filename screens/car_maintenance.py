@@ -31,21 +31,24 @@ class CarMaintenanceScreen(MDScreen):
 		bdb = BigchainDB(bdb_root_url)
 		
 		query = bdb.metadata.get(search = vin)
-		#print(vin)
-		#print(query)
+
 		sortingList = []
 		for entry in query:
 			sortingList.append(entry['metadata']['date'])
 		sortingList.sort(key=lambda date: datetime.strptime(date, "%b/%d/%Y %I:%M:%S %p"))
-		sortingList.reverse()
-		#print(sortingList)
-		#TODO: Figure out how to display mileage
+
 		sortedQuery = []
 		for localdatetime in sortingList:
 			for entry in query:
 				if entry['metadata']['date'] == localdatetime:
 					sortedQuery.append(entry)
-		#print(sortedQuery)
+		for item in sortedQuery:
+			try:
+				key = item['metadata']['mileage']
+			except:
+				item['metadata']['mileage'] = key
+		sortedQuery.reverse()
+		
 		for sortedEntry in sortedQuery:
 			maint = Maintenance()
 			maint_info = Content()
@@ -62,12 +65,11 @@ class CarMaintenanceScreen(MDScreen):
 				company_query = bdb.assets.get(search = company)
 				maint_info.header = 'Mechanic: ' + company
 				maint_info.subHeader = 'Phone: ' + company_query[0]['data']['Dealership']['Phone']
-				maint_info.mileage = 'Mileage: ' + sortedEntry['metadata']['mileage']
 			elif logType == 'transfer':
 				maint_info.header = 'New Ownership'
 				maint_info.subHeader = 'New Owner: ' + owners
 				
-			#maint_info.mileage = 'Mileage: ' + sortedEntry['metadata']['mileage']
+			maint_info.mileage = 'Mileage: ' + sortedEntry['metadata']['mileage']
 			self.ids.content_maintenance.add_widget(MDExpansionPanel(
     			icon = "car-wrench",
     			content=maint_info,
