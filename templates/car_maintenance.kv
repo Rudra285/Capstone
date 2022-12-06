@@ -23,8 +23,9 @@
         MDTopAppBar:
             elevation: 4
             title: app.title
-            on_action_button: root.goBack()
-            left_action_items: [["arrow-left-bold-outline", lambda x: root.goBack(root, app)]] 
+            #on_action_button: root.goBack()
+            left_action_items: [["arrow-left-bold-outline", lambda x: root.goBack(root, app)]]
+            right_action_items: [["export", lambda x: root.export_pdf()]]            
 
         FitImage:
             source: "assets/small_logo.png"
