@@ -15,7 +15,8 @@ class BusinessLoginScreen(MDScreen):
     dialog = None
 
     def create_business_account_clicked(self, root, app):
-
+	
+	#Show disclaimer for private key
         cancel_btn = MDFlatButton(text="CANCEL", on_release=self.close_dialog)
         accept_btn = MDFlatButton(text="ACCEPT", on_release=lambda *args: self.create_account_screen(app, *args))
 
@@ -32,33 +33,32 @@ class BusinessLoginScreen(MDScreen):
     def close_dialog(self, obj):
         self.dialog.dismiss()
 
- 
     def create_account_screen(self, app, *args):
         self.dialog.dismiss()
         app.root.current = 'business_create_account_screen'
 
-
     def loginButtonClicked(self, root, app):
-
-        #get the input for the email
-        email = self.ids.business_login_email.text
-
-        #get the input for the password
-        password = self.ids.business_login_password.text
+        email = self.ids.business_login_email.text #Input for the email
+        password = self.ids.business_login_password.text #Input for the password
         
         #check GET request for existing account
         URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
         
+        #Error check for empty fields
         if email != '' and password != '':
         	user = requests.get(url = URL, params = {'email': email})
         	data = user.json()
         	
+        	#If account doesn't exist
         	if len(data['Items']) == 0:
         		self.ids.login_status.text = 'Account does not exist!'
         		self.ids.business_login_email.text = ''
         		self.ids.business_login_password.text = ''
         	else:
+        		#If account found is business account
         		if data['Items'][0]['account']['S'] == 'B':
+        			
+        			#Verify password
         			salt = bytes.fromhex(data['Items'][0]['salt']['B'])
         			encoded_input = password.encode('utf-8') + salt
         			hashed_input = hashlib.pbkdf2_hmac('sha256', encoded_input, salt, 100000)
@@ -67,7 +67,8 @@ class BusinessLoginScreen(MDScreen):
         			if data['Items'][0]['password']['B'] == check:
         				root.manager.get_screen('business_home_screen').ids.email.text = email
         				self.ids.login_status.text = ''
-        				#TODO empty all fields before switching windows
+        				self.ids.business_login_email.text = ''
+        				self.ids.business_login_password.text = ''
         				root.manager.get_screen('business_home_screen').load()
         				app.root.current = 'business_home_screen'
         			else:
@@ -82,6 +83,6 @@ class BusinessLoginScreen(MDScreen):
 
     def goBack(self, app):
     	self.ids.login_status.text = ''
-    	#self.ids.business_login_email.text = ''
-    	#self.ids.business_login_password.text = ''
+    	self.ids.business_login_email.text = ''
+    	self.ids.business_login_password.text = ''
     	app.root.current = 'startup_screen'

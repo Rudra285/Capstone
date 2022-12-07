@@ -29,6 +29,8 @@ class CarItemPersonal(MDCardSwipe):
 		self.elevation = 3
 	
 	def transfer_dialog(self, fulfilled_tx_car, current_email, home, *args):
+		
+		#Show a transfer pop dialog
 		if not self.dialog:
 			self.dialog = MDDialog(
                 title="Transfer Vehicle",
@@ -54,30 +56,38 @@ class CarItemPersonal(MDCardSwipe):
 		self.dialog.dismiss()
 
 	def maintenance_screen(self, app):
-    	#metadata query car VIN, and get the mainteinance asset
+		
+		#Go to vehicle history
 		car_VIN = self.ids.name_personal.tertiary_text
 		app.root.get_screen('car_maintenance').load(car_VIN, self.screen)
 		self.scrollview.clear_widgets()
 		app.root.current = 'car_maintenance'
 	
 	def remove_card(self):
-		print(self.ids.name.tertiary_text)
-		self.scrollview.remove_widget(self)
+		self.scrollview.remove_widget(self) #Remove vehicle card after transfer
 	
 	def transfer_personal(self, fulfilled_creation, current_email, home, *args):
 		sender_pvt = self.dialog.content_cls.ids.key.text
 		email_str = self.dialog.content_cls.ids.recipient.text
 		
+		#Error check for empty fields
 		if sender_pvt != '' and email_str != '':
+			
+			#Establish connection to BigChainDB
 			bdb_root_url = 'https://test.ipdb.io'
 			bdb = BigchainDB(bdb_root_url)
-			URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
-			email_list = email_str.split()
+			
+			URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users" #For GET request
+			email_list = email_str.split() #Splt the recipent emails into list
 			recipient_public = []
 			recipient_names = []
+			
+			#Send GET request for every email
 			for i in email_list:
 				user = requests.get(url = URL, params = {'email': i})
 				dest_data = user.json()
+				
+				#If account was found in the database
 				if len(dest_data['Items']) != 0:
 					recipient_pub = dest_data['Items'][0]["publicKey"]["S"]
 					dest_name = dest_data['Items'][0]["name"]["S"]
@@ -85,13 +95,15 @@ class CarItemPersonal(MDCardSwipe):
 					recipient_names.append(dest_name)
 				else:
 					self.dialog.content_cls.ids.transfer_alert.text = 'Account ' + i + ' was not found'
-
+			
+			#If any recipients found in database
 			if len(recipient_public) != 0:
+				#Initialize variables
 				recipient_public_tup = tuple(recipient_public)
-				
 				owner_public_keys = fulfilled_creation['outputs'][0]['public_keys']
 				car_VIN = self.ids.name_personal.tertiary_text
 				
+				#Start process to transfer vehicle
 				Process(target = Escrow.verify, args=(Escrow, sender_pvt, owner_public_keys, recipient_public_tup, recipient_public, self, fulfilled_creation, recipient_names, car_VIN)).start()
 				
 				self.dialog.content_cls.ids.transfer_alert.text = ''
@@ -110,6 +122,8 @@ class PersonalHomeScreen(MDScreen):
         
 	def add_card(self, vehicle, fulfilled_tx_car):
 		card = CarItemPersonal();
+		
+		#Set card data
 		card.screen = self.name
 		card.scrollview = self.ids.content_personal
 		card.ids.name_personal.text = vehicle['data']['vehicle']['make']
@@ -120,25 +134,28 @@ class PersonalHomeScreen(MDScreen):
 		self.ids.content_personal.add_widget(card)
         
 	def load(self):
-    	#Load all vehicles owned by the business
 		already_in = []
+		
+		#Establish connection to BigChainDB
 		bdb_root_url = 'https://test.ipdb.io'
 		bdb = BigchainDB(bdb_root_url)
-		URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
-    	
+		
+		#Send GET request to database
 		email = self.ids.email.text
+		URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
 		user = requests.get(url = URL, params = {'email': email})
 		data = user.json()
 		self.ids.account_name.title = data['Items'][0]['name']['S']
 		pub = data['Items'][0]['publicKey']["S"]
-		data_list = bdb.metadata.get(search = pub)
-
+		
+		data_list = bdb.metadata.get(search = pub) #Query BigchainDB for public key of user in metadata
+		
+		#Load all vehicles which have the public key in metadata
 		for i in data_list:
 			temp = bdb.transactions.get(asset_id=i['id'])
     		
 			if temp[-1]['operation'] == 'TRANSFER' and (temp[-1]['asset']['id'] not in already_in):
 				check = bdb.transactions.get(asset_id=temp[-1]['asset']['id'])
-    			
 				if(pub in check[-1]['metadata']['owner_key']):
 					already_in.append(check[-1]['asset']['id'])
 					vehicle = check[0]['asset']

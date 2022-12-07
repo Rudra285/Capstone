@@ -16,7 +16,8 @@ class PersonalLoginScreen(MDScreen):
     dialog = None
 
     def create_personal_account_clicked(self, root, app):
-
+    	
+    	#Show disclaimer for private key
         cancel_btn = MDFlatButton(text="CANCEL", on_release=self.close_dialog)
         accept_btn = MDFlatButton(text="ACCEPT", on_release=lambda *args: self.create_account_screen(app, *args))
 
@@ -33,57 +34,56 @@ class PersonalLoginScreen(MDScreen):
     def close_dialog(self, obj):
         self.dialog.dismiss()
 
- 
     def create_account_screen(self, app, *args):
         self.dialog.dismiss()
         app.root.current = 'personal_create_account_screen'
-    
-    #TODO Make sure the email and password are not empty
 
     def loginButtonClicked(self, root, app):
-
-        #Take the input for the email
-        email = self.ids.personal_login_email.text
-
-        #take the input for the password
-        password = self.ids.personal_login_password.text
-        
-        #check GET request for existing account
-        URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
-        
-        if email != '' and password != '':
-        	user = requests.get(url = URL, params = {'email': email})
-        	data = user.json()
-        	
-        	if len(data['Items']) == 0:
-        		self.ids.login_status.text = 'Account does not exist!'
-        		self.ids.personal_login_email.text = ''
-        		self.ids.personal_login_password.text = ''
-        	else:
-        		if data['Items'][0]['account']['S'] == 'P':
-        			salt = bytes.fromhex(data['Items'][0]['salt']['B'])
-        			encoded_input = password.encode('utf-8') + salt
-        			hashed_input = hashlib.pbkdf2_hmac('sha256', encoded_input, salt, 100000)
-        			check = hashed_input.hex()
-        			
-        			if data['Items'][0]['password']['B'] == check:
-        				root.manager.get_screen('personal_home_screen').ids.email.text = email
-        				self.ids.login_status.text = ''
-        				#TODO: empty all fields before switching windows
-        				root.manager.get_screen('personal_home_screen').load()
-        				app.root.current = 'personal_home_screen'
-        			else:
-        				self.ids.login_status.text = 'Password does not match!'
-        				self.ids.personal_login_password.text = ''
-        		else:
-        			self.ids.login_status.text = 'Account does not exist!'
-        			self.ids.personal_login_email.text = ''
-        			self.ids.personal_login_password.text = ''
-        else:
-        	self.ids.login_status.text = 'Fill in all the fields'
+    	email = self.ids.personal_login_email.text #Input for the email
+    	password = self.ids.personal_login_password.text #Input for the password
+    	
+    	#check GET request for existing account
+    	URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
+    	
+    	#Error check for empty fields
+    	if email != '' and password != '':
+    		user = requests.get(url = URL, params = {'email': email})
+    		data = user.json()
+    		
+    		#If account doesn't exist
+    		if len(data['Items']) == 0:
+    			self.ids.login_status.text = 'Account does not exist!'
+    			self.ids.personal_login_email.text = ''
+    			self.ids.personal_login_password.text = ''
+    		else:
+    			#If account found is personal account
+    			if data['Items'][0]['account']['S'] == 'P':
+    				
+    				#Verify password
+    				salt = bytes.fromhex(data['Items'][0]['salt']['B'])
+    				encoded_input = password.encode('utf-8') + salt
+    				hashed_input = hashlib.pbkdf2_hmac('sha256', encoded_input, salt, 100000)
+    				check = hashed_input.hex()
+    				
+    				if data['Items'][0]['password']['B'] == check:
+    					root.manager.get_screen('personal_home_screen').ids.email.text = email
+    					self.ids.login_status.text = ''
+    					self.ids.personal_login_email.text = ''
+    					self.ids.personal_login_password.text = ''
+    					root.manager.get_screen('personal_home_screen').load()
+    					app.root.current = 'personal_home_screen'
+    				else:
+    					self.ids.login_status.text = 'Password does not match!'
+    					self.ids.personal_login_password.text = ''
+    			else:
+    				self.ids.login_status.text = 'Account does not exist!'
+    				self.ids.personal_login_email.text = ''
+    				self.ids.personal_login_password.text = ''
+    	else:
+    		self.ids.login_status.text = 'Fill in all the fields'
 
     def goBack(self, app):
     	self.ids.login_status.text = ''
-    	#self.ids.personal_login_email.text = ''
-    	#self.ids.personal_login_password.text = ''
+    	self.ids.personal_login_email.text = ''
+    	self.ids.personal_login_password.text = ''
     	app.root.current = 'startup_screen'

@@ -36,39 +36,34 @@ class BusinessCreateAccountScreen(MDScreen):
 	postal = StringProperty()
 
 	def onClick(self):
+		
 		#Establish connection to BigChainDB
-		bdb_root_url = 'https://test.ipdb.io'  # Use YOUR BigchainDB Root URL here
+		bdb_root_url = 'https://test.ipdb.io'
 		bdb = BigchainDB(bdb_root_url)
 
-		#get the input for the email
-		email = self.ids.business_create_email.text
-
-        	#get the input for the password
-		password = self.ids.business_create_password.text
-
-        	#Input for the business name
-		name = self.ids.business_create_name.text
-
-        	#Input for the business phone number
-		phone = self.ids.business_create_phone.text
+		email = self.ids.business_create_email.text #Input for the email
+		password = self.ids.business_create_password.text #Input for the password
+		name = self.ids.business_create_name.text #Input for the business name
+		phone = self.ids.business_create_phone.text #Input for the business phone number
 		
-        	#Generate Keypair
-		user_key = generate_keypair()
+		user_key = generate_keypair() #Generate Keypair
 		
 		#POST user data to "users" database
 		URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
 		
+		#Error check for any empty fields
 		if email != '' and password != '' and name != '' and phone != '':
 			user = requests.get(url = URL, params = {'email': email})
 			data = user.json()
 			
+			#If no account exists for email
 			if len(data['Items']) == 0:
+				self.ids.create_status.text =''
+				
 				#Send POST request
-				salt = os.urandom(32) # A new salt for this user
-				#Encode password and add salt
-				encoded_passwd = password.encode('utf-8') + salt
-				#Hash password
-				hashed_passwd = hashlib.pbkdf2_hmac('sha256', encoded_passwd, salt, 100000)
+				salt = os.urandom(32) #A new salt for this user
+				encoded_passwd = password.encode('utf-8') + salt #Encode password and add salt
+				hashed_passwd = hashlib.pbkdf2_hmac('sha256', encoded_passwd, salt, 100000) #Hash password
 				
 				#Create entry
 				new_user = {
@@ -81,6 +76,7 @@ class BusinessCreateAccountScreen(MDScreen):
 				}
 				
 				post = requests.post(url = URL, json = new_user)
+				
 				#Create business dealership
 				dealership = {
 					'data': {
@@ -108,9 +104,6 @@ class BusinessCreateAccountScreen(MDScreen):
 				#send the creation of the dealership to bigchaindb
 				sent_creation_tx_dealership = bdb.transactions.send_commit(fulfilled_creation_tx_dealership)
 				
-				#get the txid of the dealership creation
-				txid_dealership = fulfilled_creation_tx_dealership['id']
-				
 				#Show Private Key
 				if not self.dialog:
 					self.dialog = MDDialog(
@@ -126,7 +119,7 @@ class BusinessCreateAccountScreen(MDScreen):
 					self.dialog.open()
 			else:
 				self.ids.create_status.text = 'Account already exists!'
-
+				
 			self.ids.business_create_email.text = ''
 			self.ids.business_create_password.text = ''
 			self.ids.business_create_name.text = ''
@@ -136,6 +129,8 @@ class BusinessCreateAccountScreen(MDScreen):
 			self.ids.create_status.text = 'Fill in all the fields'
 		
 	def copy_clip(self, obj):
+		
+		#Copy Private Key to clipboard
 		pyclip.copy(self.dialog.text)
 		self.dialog.dismiss()
 		self.dialog = None
@@ -143,8 +138,8 @@ class BusinessCreateAccountScreen(MDScreen):
 
 	def goBack(self, app):
 		self.ids.create_status.text = ''
-		#self.ids.business_create_email.text = ''
-		#self.ids.business_create_password.text = ''
-		#self.ids.business_create_name.text = ''
-		#self.ids.business_create_phone.text = ''
+		self.ids.business_create_email.text = ''
+		self.ids.business_create_password.text = ''
+		self.ids.business_create_name.text = ''
+		self.ids.business_create_phone.text = ''
 		app.root.current = 'business_login_screen'

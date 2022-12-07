@@ -21,34 +21,28 @@ class PersonalCreateAccountScreen(MDScreen):
 	dialog = None
 
 	def onClick(self):
+		email = self.ids.personal_create_email.text #Input for the email
+		password = self.ids.personal_create_password.text #Input for the password
+		name = self.ids.personal_create_name.text #Input for the name
 
-        	#get the input for the email
-		email = self.ids.personal_create_email.text
-
-        	#get the input for the password
-		password = self.ids.personal_create_password.text
-		
-		#get input for the name
-		name = self.ids.personal_create_name.text
-        
-        	#Generate Keypair
-		user_key = generate_keypair()
+		user_key = generate_keypair() #Generate Keypair
         
         	#POST user data to "users" database
 		URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
 		
+		#Error check for any empty fields
 		if email != '' and password != '' and name != '':
 			user = requests.get(url = URL, params = {'email': email})
 			data = user.json()
 			
+			#If no account exists for email
 			if len(data['Items']) == 0:
 				self.ids.create_status.text =''
+				
 				#Send POST
-				salt = os.urandom(32) # A new salt for this user
-				#Encode password and add salt
-				encoded_passwd = password.encode('utf-8') + salt
-				#Hash password
-				hashed_passwd = hashlib.pbkdf2_hmac('sha256', encoded_passwd, salt, 100000)
+				salt = os.urandom(32) #A new salt for this user
+				encoded_passwd = password.encode('utf-8') + salt #Encode password and add salt
+				hashed_passwd = hashlib.pbkdf2_hmac('sha256', encoded_passwd, salt, 100000) #Hash password
 				
 				#Create entry
 				new_user = {
@@ -85,13 +79,15 @@ class PersonalCreateAccountScreen(MDScreen):
 			self.ids.create_status.text = 'Fill in all the fields'
     
 	def copy_clip(self, obj):
+	
+		#Copy Private Key to clipboard
 		pyclip.copy(self.dialog.text)
 		self.dialog.dismiss()
 		self.dialog = None
 
 	def goBack(self, app):
 		self.ids.create_status.text = ''
-		#self.ids.personal_create_email.text = ''
-		#self.ids.personal_create_password.text = ''
-		#self.ids.personal_create_name.text = ''
+		self.ids.personal_create_email.text = ''
+		self.ids.personal_create_password.text = ''
+		self.ids.personal_create_name.text = ''
 		app.root.current = 'personal_login_screen'

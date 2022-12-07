@@ -9,8 +9,8 @@ from datetime import datetime
 from reportlab.pdfgen import canvas
 
 class Content(MDBoxLayout):
-    header = StringProperty("the name of the business that did maintenance")
-    subHeader = StringProperty("phone number for business")
+    header = StringProperty()
+    subHeader = StringProperty()
     mileage = StringProperty()
 
 class Maintenance(MDExpansionPanelThreeLine):
@@ -28,33 +28,45 @@ class CarMaintenanceScreen(MDScreen):
 		Clock.schedule_once(self.on_start)
         
 	def load(self, vin, screen):
+		
+		#Initialize class variables
 		self.LastScreen = screen
 		self.vin = vin
+		
+		#Establish connection to BigchainDB
 		bdb_root_url = 'https://test.ipdb.io'
 		bdb = BigchainDB(bdb_root_url)
 		
-		query = bdb.metadata.get(search = vin)
-
+		query = bdb.metadata.get(search = vin) #Query for vehicle VIN in metadata
+		
+		#Sort timestamps in assending order
 		sortingList = []
 		for entry in query:
 			sortingList.append(entry['metadata']['date'])
 		sortingList.sort(key=lambda date: datetime.strptime(date, "%b/%d/%Y %I:%M:%S %p"))
-
+		
+		#Sort query by timestamp in assending order
 		sortedQuery = []
 		for localdatetime in sortingList:
 			for entry in query:
 				if entry['metadata']['date'] == localdatetime:
 					sortedQuery.append(entry)
+		
+		#Add recent mileage data to queried data
 		for item in sortedQuery:
 			try:
 				key = item['metadata']['mileage']
 			except:
 				item['metadata']['mileage'] = key
-		sortedQuery.reverse()
 		
+		sortedQuery.reverse() #Reverse the query list
+		
+		#Add log item to scrollview
 		for sortedEntry in sortedQuery:
 			maint = Maintenance()
 			maint_info = Content()
+			
+			#Get Expansion Panel data
 			maint.maintenance = sortedEntry['metadata']['maintenance']
 			maint.date = sortedEntry['metadata']['date']
 			owners = ''
@@ -62,17 +74,21 @@ class CarMaintenanceScreen(MDScreen):
 				owners = owners + i + ', '
 			owners = owners[:-2]
 			maint.owner = 'Owner: ' + owners
+			
+			#Based on log type, add details accordingly to expanded panel
 			logType = sortedEntry['metadata']['type']
+			
 			if logType == 'maint':
 				company = sortedEntry['metadata']['company']
-				company_query = bdb.assets.get(search = company)
+				company_query = bdb.assets.get(search = company) #Query for company name
 				maint_info.header = 'Mechanic: ' + company
 				maint_info.subHeader = 'Phone: ' + company_query[0]['data']['Dealership']['Phone']
 			elif logType == 'transfer':
 				maint_info.header = 'New Ownership'
 				maint_info.subHeader = 'New Owner: ' + owners
-				
 			maint_info.mileage = 'Mileage: ' + sortedEntry['metadata']['mileage']
+			
+			#Add Log asset to scrollview list
 			self.ids.content_maintenance.add_widget(MDExpansionPanel(
     			icon = "car-wrench",
     			content=maint_info,
@@ -90,32 +106,41 @@ class CarMaintenanceScreen(MDScreen):
 		vin = self.vin
 		filename = 'vehicle_history_' + vin + '.pdf'
 		
+		#Establish connection to BigchainDB
 		bdb_root_url = 'https://test.ipdb.io'
 		bdb = BigchainDB(bdb_root_url)
 		
+		#Query BigchainDB for vehicle VIN
 		query = bdb.metadata.get(search = vin)
 		asset_query = bdb.assets.get(search = vin)
 		
+		#Sort timestamps in assending order
 		sortingList = []
 		for entry in query:
 			sortingList.append(entry['metadata']['date'])
 		sortingList.sort(key=lambda date: datetime.strptime(date, "%b/%d/%Y %I:%M:%S %p"))
-
+		
+		#Sort query by timestamp in assending order
 		sortedQuery = []
 		for localdatetime in sortingList:
 			for entry in query:
 				if entry['metadata']['date'] == localdatetime:
 					sortedQuery.append(entry)
+		
+		#Add recent mileage data to queried data
 		for item in sortedQuery:
 			try:
 				key = item['metadata']['mileage']
 			except:
 				item['metadata']['mileage'] = key
-		sortedQuery.reverse()
 		
-		my_canvas = canvas.Canvas(filename)
-		my_canvas.setLineWidth(.3)
-		my_canvas.setFont('Helvetica', 24)
+		sortedQuery.reverse() #Reverse the query list
+		
+		my_canvas = canvas.Canvas(filename) #Create file
+		my_canvas.setLineWidth(.3) #Initialize spacing
+		my_canvas.setFont('Helvetica', 24) #Set font size
+		
+		#Add all vehicle history to pdf
 		my_canvas.drawString(30, 750, 'My Garage Vehicle History')
 		my_canvas.setFont('Helvetica', 12)
 		data = 'Vehicle Identification Number: ' + vin
@@ -162,7 +187,7 @@ class CarMaintenanceScreen(MDScreen):
 			space -= 15
 			my_canvas.drawString(30, space, '')
 			space -= 15
-			
-		my_canvas.save()
+		
+		my_canvas.save() #Save file
             
 
