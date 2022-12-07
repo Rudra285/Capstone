@@ -36,7 +36,7 @@ class BusinessCreateAccountScreen(MDScreen):
 	postal = StringProperty()
 
 	def onClick(self):
-        #Establish connection to BigChainDB
+		#Establish connection to BigChainDB
 		bdb_root_url = 'https://test.ipdb.io'  # Use YOUR BigchainDB Root URL here
 		bdb = BigchainDB(bdb_root_url)
 
@@ -45,7 +45,6 @@ class BusinessCreateAccountScreen(MDScreen):
 
         	#get the input for the password
 		password = self.ids.business_create_password.text
-		print(password)
 
         	#Input for the business name
 		name = self.ids.business_create_name.text
@@ -111,8 +110,6 @@ class BusinessCreateAccountScreen(MDScreen):
 				
 				#get the txid of the dealership creation
 				txid_dealership = fulfilled_creation_tx_dealership['id']
-				print("What is the transaction ID for the creation of the dealership?", txid_dealership)
-				print("Dealership:", dealership)
 				
 				#Show Private Key
 				if not self.dialog:
@@ -128,16 +125,15 @@ class BusinessCreateAccountScreen(MDScreen):
 					)
 					self.dialog.open()
 			else:
-				print('Account already exists!')
-			
-			#TODO: display error on screen not in terminal
+				self.ids.create_status.text = 'Account already exists!'
+
 			self.ids.business_create_email.text = ''
 			self.ids.business_create_password.text = ''
 			self.ids.business_create_name.text = ''
 			self.ids.business_create_phone.text = ''
 
 		else:
-			print('Fill in all the fields')
+			self.ids.create_status.text = 'Fill in all the fields'
 		
 	def copy_clip(self, obj):
 		pyclip.copy(self.dialog.text)
@@ -146,4 +142,9 @@ class BusinessCreateAccountScreen(MDScreen):
 		
 
 	def goBack(self, app):
+		self.ids.create_status.text = ''
+		#self.ids.business_create_email.text = ''
+		#self.ids.business_create_password.text = ''
+		#self.ids.business_create_name.text = ''
+		#self.ids.business_create_phone.text = ''
 		app.root.current = 'business_login_screen'

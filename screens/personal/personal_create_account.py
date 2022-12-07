@@ -90,4 +90,8 @@ class PersonalCreateAccountScreen(MDScreen):
 		self.dialog = None
 
 	def goBack(self, app):
+		self.ids.create_status.text = ''
+		#self.ids.personal_create_email.text = ''
+		#self.ids.personal_create_password.text = ''
+		#self.ids.personal_create_name.text = ''
 		app.root.current = 'personal_login_screen'

@@ -166,6 +166,7 @@ class BusinessHomeScreen(MDScreen):
 			email = self.ids.email.text
 			URL = "https://1r6m03cirj.execute-api.us-west-2.amazonaws.com/test/users"
 			vin_check = bdb.assets.get(search = vin)
+			print(vin_check)
 			if len(vin_check) == 0:
 				self.ids.creation_alert.text = ''
 				self.ids.create_car_make.text = ''
@@ -212,7 +213,7 @@ class BusinessHomeScreen(MDScreen):
 				
 				self.add_card(vehicle_asset, fulfilled_creation_tx_car)
 				
-				maint_data = 'New Vehicle Asset Created'
+				maint_data = 'Vehicle Created'
 				#Prepare the creation of the maintenance owned by the mechanic shop
 				prepared_creation_tx_maintenance = bdb.transactions.prepare(
 					operation='CREATE',

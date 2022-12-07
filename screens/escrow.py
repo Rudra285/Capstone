@@ -19,7 +19,7 @@ class Escrow():
 		carQuery = carQuery[0]
 		info = bdb.transactions.get(asset_id = carQuery['id'])
 		car_key = info[0]['inputs'][0]['owners_before'][0]
-		maint_data = 'Transfer Vehicle Asset'
+		maint_data = 'Change Ownership'
 		
 		prepared_creation_tx_maintenance = bdb.transactions.prepare(
 			operation='CREATE',

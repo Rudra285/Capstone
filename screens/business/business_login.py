@@ -81,4 +81,7 @@ class BusinessLoginScreen(MDScreen):
         	self.ids.login_status.text = 'Fill in all the fields'
 
     def goBack(self, app):
-            app.root.current = 'startup_screen'
+    	self.ids.login_status.text = ''
+    	#self.ids.business_login_email.text = ''
+    	#self.ids.business_login_password.text = ''
+    	app.root.current = 'startup_screen'

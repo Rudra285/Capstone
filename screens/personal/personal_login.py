@@ -83,4 +83,7 @@ class PersonalLoginScreen(MDScreen):
         	self.ids.login_status.text = 'Fill in all the fields'
 
     def goBack(self, app):
-        app.root.current = 'startup_screen'
+    	self.ids.login_status.text = ''
+    	#self.ids.personal_login_email.text = ''
+    	#self.ids.personal_login_password.text = ''
+    	app.root.current = 'startup_screen'
