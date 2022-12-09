@@ -35,6 +35,9 @@ class BusinessLoginScreen(MDScreen):
 
     def create_account_screen(self, app, *args):
         self.dialog.dismiss()
+        self.ids.login_status.text = ''
+        self.ids.business_login_email.text = ''
+        self.ids.business_login_password.text = ''
         app.root.current = 'business_create_account_screen'
 
     def loginButtonClicked(self, root, app):

@@ -36,6 +36,9 @@ class PersonalLoginScreen(MDScreen):
 
     def create_account_screen(self, app, *args):
         self.dialog.dismiss()
+        self.ids.login_status.text = ''
+        self.ids.personal_login_email.text = ''
+        self.ids.personal_login_password.text = ''
         app.root.current = 'personal_create_account_screen'
 
     def loginButtonClicked(self, root, app):
