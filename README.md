@@ -52,5 +52,3 @@ My Garage App:
   Install the My Garage App:
       git clone https://github.com/Rudra285/My-Garage-Application
   Change the bdb_root_url located on (list the pages) to the location of the BigChainDB server you are using
-
-Contributors:
